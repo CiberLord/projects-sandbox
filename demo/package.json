@@ -1,0 +1,14 @@
+{
+  "name": "online-checkers",
+  "version": "1.0.0",
+  "description": "Simple project for dev",
+  "scripts": {
+    "webpack": "npx webpack",
+    "webpack-watch": "npx webpack --watch",
+    "server-local": "node ./server/index.js",
+    "server-watch": "nodemon ./server/index.js"
+    },
+  "keywords": [],
+  "author": "yuldash1123@yandex.ru",
+  "license": "ISC"
+}
