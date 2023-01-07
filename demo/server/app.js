@@ -1,4 +1,4 @@
-const path = require('node:path');
+const path = require('path');
 const fastifyFactory = require('fastify');
 const fastifyStatic = require('@fastify/static');
 const fastifyAccepts = require('@fastify/accepts');

@@ -1,5 +1,5 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 
 const { routes } = require('./config');
 const composeBaseData = require('./composeBaseData');
@@ -27,7 +27,10 @@ const registerPageRoutes = (app) => {
                     });
                 }
 
-                html = html.replace('window.__INITIAL_STATE__ = null', `window.__INITIAL_STATE__ = ${JSON.stringify(data)}`);
+                html = html.replace(
+                    'window.__INITIAL_STATE__ = null',
+                    `window.__INITIAL_STATE__ = ${JSON.stringify(data)}`,
+                );
 
                 reply.type('text/html');
                 reply.send(html);
