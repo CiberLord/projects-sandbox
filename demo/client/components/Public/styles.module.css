@@ -1,5 +1,73 @@
 .container {
     box-sizing: border-box;
-    padding: 100px 20px;
-    background: azure;
+    padding: 20px 0;
+}
+
+.slidesWrapper {
+    box-sizing: border-box;
+    border-radius: 12px;
+    background: #d0b0f1;
+    padding: 24px 0;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.16);
+}
+
+.slide {
+    flex-shrink: 0;
+    background: rgba(204, 234, 255, 0.64);
+    box-sizing: border-box;
+    width: 240px;
+    border-radius: 8px;
+    padding: 12px 8px;
+}
+
+.slide + .slide {
+    /*margin-left: 12px;*/
+}
+
+.slide:first-of-type {
+    margin-left: 0;
+}
+
+.image {
+    box-sizing: border-box;
+    display: block;
+    object-fit: cover;
+    width: calc(100% - 8px);
+    height: 200px;
+    border-radius: 8px;
+    margin: 0 auto;
+}
+
+.button {
+    display: block;
+    margin-top: 16px;
+    box-shadow: 0 0 1px #716f6f;
+    border-radius: 8px;
+    border: none;
+    background: #265b7b;
+    color: white;
+    padding: 8px 16px;
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+.button:active {
+    transform: scale(0.9);
+}
+
+.otherContent {
+    box-sizing: border-box;
+    margin-top: 24px;
+}
+
+.block {
+    box-sizing: border-box;
+    height: 340px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.16);
+    border-radius: 12px;
+    background: #e1f6f6;
+}
+
+.block + .block {
+    margin-top: 12px;
 }

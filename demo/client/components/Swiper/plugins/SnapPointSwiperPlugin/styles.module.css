@@ -1,0 +1,33 @@
+.container {
+    position: relative;
+    box-sizing: border-box;
+}
+
+.slidesList {
+    position: relative;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.slidesTrack {
+    position: relative;
+    display: flex;
+    touch-action: pan-y;
+
+    box-sizing: border-box;
+
+    will-change: transform;
+}
+
+.slide {
+    flex-shrink: 0;
+
+    box-sizing: border-box;
+}
+
+.slide * {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+}

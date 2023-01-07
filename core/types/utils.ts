@@ -1,4 +1,5 @@
-export type AnyObject = Record<string, unknown>;
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type EmptyObject = {};
 
 export type Any = any;
 
