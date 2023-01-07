@@ -13,6 +13,7 @@ export interface ISwiperPluginData {
 
 export interface ISwiperPluginTransitionEvent {
     updateIndex: number;
+    duration?: number;
 }
 
 export interface ISwiperPluginClassnames {

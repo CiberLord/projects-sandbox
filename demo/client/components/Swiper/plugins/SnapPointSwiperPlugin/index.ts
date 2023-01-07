@@ -85,7 +85,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
                     this.animateController.start({
                         x: updatedPosition,
                         config: {
-                            duration: 40,
+                            duration: 10,
                         },
                     });
                 },
@@ -93,6 +93,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
                     if (swipeX !== 0) {
                         this.transition({
                             updateIndex: this.currentIndex - swipeX,
+                            duration: 130,
                         });
 
                         return;
@@ -108,6 +109,11 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             {
                 drag: {
                     axis: 'x',
+                    swipe: {
+                        velocity: [0.4, 0.4],
+                        distance: [20, 20],
+                        duration: 270,
+                    },
                 },
             },
         );
@@ -124,8 +130,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             x: this.snapPoints[updatedIndex],
             onRest: () => this.onChange?.({ currentIndex: event.updateIndex }),
             config: {
-                duration: 200,
-                tension: 600,
+                duration: event.duration || 150,
             },
         });
 

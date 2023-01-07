@@ -21,7 +21,7 @@
 }
 
 .slide + .slide {
-    /*margin-left: 12px;*/
+    margin-left: 12px;
 }
 
 .slide:first-of-type {
