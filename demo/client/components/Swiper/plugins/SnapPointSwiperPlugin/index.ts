@@ -67,6 +67,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
 
                 this.animateController.start({
                     x: updatedPosition,
+                    delay: undefined,
                     config: {
                         friction: 50,
                         tension: 800,
@@ -90,6 +91,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
 
                 this.animateController.start({
                     x: this.snapPoints[updatedIndex],
+                    delay: undefined,
                     config: {
                         friction: 50,
                         tension: 400,
@@ -130,6 +132,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         this.animateController.start({
             x: this.snapPoints[updatedIndex],
             onRest: () => this.onChange?.({ currentIndex: event.updatedIndex }),
+            delay: undefined,
             config: {
                 friction: 50,
                 tension: 500,
