@@ -1,6 +1,5 @@
 import uniq from 'lodash/uniq';
-
-import { AnimationResult, Controller, SpringValue, interpolate } from '@react-spring/web';
+import { AnimationResult, Controller, SpringValue, CSS } from '@react-spring/web';
 
 import {
     ISwiperPluginClassnames,
@@ -42,12 +41,6 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         this.centered = configs.centered;
 
         this.snapPoints = [];
-        //
-        // this.renderCallback = (event) => {
-        //     (
-        //         this.slidesTrack.current as HTMLDivElement
-        //     ).style.transform = `translate3d(${event.value.x}px, 0px, 0px)`;
-        // };
 
         this.animateController = new Controller<ISpringValue>();
     }

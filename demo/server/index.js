@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const { app } = require('./app');
 
 app.listen({ port: process.env.PORT, host: process.env.HOST }, function (err, address) {
@@ -8,3 +6,9 @@ app.listen({ port: process.env.PORT, host: process.env.HOST }, function (err, ad
         process.exit(1);
     }
 });
+
+if (process.env.NODE_ENV === 'test') {
+    setTimeout(() => {
+        process.exit(0);
+    }, parseInt(process.env.LIFE_TIME));
+}

@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect, useMemo } from 'react';
 import cn from 'classnames';
 import { animated } from '@react-spring/web';
 
@@ -17,6 +17,20 @@ export function SwiperContainer<Input extends ISwiperPluginInput>({
     const { plugin, nodes, data, slidesData, methods, classNames } = useSwiper<Input>(
         config as unknown as ISwiperConfig<Input>,
     );
+
+    const { slidesTrack } = plugin.getStyle();
+
+    useEffect(() => {
+        console.log('change data = ', data);
+    }, [data]);
+
+    useEffect(() => {
+        console.log('re-create plugin');
+    }, [plugin]);
+
+    useEffect(() => {
+        console.log('change slidesTrack = ', slidesTrack);
+    }, [slidesTrack]);
 
     return (
         <SwiperMethodsContext.Provider value={methods}>

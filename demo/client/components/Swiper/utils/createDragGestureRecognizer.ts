@@ -59,7 +59,7 @@ export const createDragGestureRecognizer = (config: IInitDragConfig): IGestureRe
             drag: {
                 axis: 'x',
                 swipe: {
-                    velocity: [0.4, 0.4],
+                    velocity: [0.3, 0.4],
                     distance: [20, 20],
                     duration: 260,
                 },

@@ -5,8 +5,10 @@
   "scripts": {
     "webpack": "npx webpack",
     "webpack-watch": "npx webpack --watch",
-    "server-local": "node ./server/index.js",
-    "server-watch": "nodemon ./server/index.js"
+    "server-local": "node -r dotenv/config ./server/index.js dotenv_config_path=configs/dev/.env",
+    "server-watch": "nodemon -r dotenv/config ./server/index.js dotenv_config_path=configs/dev/.env",
+    "server-test": "node -r dotenv/config ./server/index.js dotenv_config_path=configs/test/.env",
+    "webpack-prod": "npx webpack --env NODE_ENV=prod"
   },
   "keywords": [],
   "author": "yuldash1123@yandex.ru",

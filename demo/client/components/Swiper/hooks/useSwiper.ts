@@ -12,31 +12,21 @@ import { ISwiperPluginInput } from '../plugins';
 export const useSwiper = <Input extends ISwiperPluginInput>(
     config: ISwiperConfig<Input>,
 ): ISwiper => {
-    const { plugin: Plugin, currentIndex, slidesCount, onChange, ...pluginProps } = config;
+    const {
+        plugin: Plugin,
+        currentIndex: defaultCurrentIndex = 0,
+        slidesCount: defaultSlidesCount = 0,
+        onChange,
+        ...pluginProps
+    } = config;
 
-    const [data, setData] = useState<ISwiperData>({
-        currentIndex: currentIndex || 0,
-        slidesCount: slidesCount || 0,
-    });
+    const [currentIndex, updateIndex] = useState(defaultCurrentIndex);
+    const [slidesCount, setSlidesCount] = useState(defaultSlidesCount);
 
     const container = useRef<HTMLDivElement>(null);
     const slidesList = useRef<HTMLDivElement>(null);
     const slidesTrack = useRef<HTMLDivElement>(null);
     const slides = useRef<HTMLDivElement[]>([]);
-
-    const setSlideIndex = useCallback((index: number) => {
-        setData((state) => ({
-            ...state,
-            currentIndex: index,
-        }));
-    }, []);
-
-    const setSlidesCount = useCallback((count: number) => {
-        setData((state) => ({
-            ...state,
-            slidesCount: count,
-        }));
-    }, []);
 
     const pluginInstance = useMemo(
         () =>
@@ -46,13 +36,21 @@ export const useSwiper = <Input extends ISwiperPluginInput>(
                 slidesList,
                 slidesTrack,
                 slides,
-                currentIndex: data.slidesCount,
-                updateIndex: setSlideIndex,
+                currentIndex,
+                updateIndex,
             }),
         [],
     );
 
     const classNames = pluginInstance.getCSS();
+
+    const data = useMemo<ISwiperData>(
+        () => ({
+            currentIndex,
+            slidesCount,
+        }),
+        [currentIndex, slidesCount],
+    );
 
     const methods = useMemo<ISwiperMethods>(
         () => ({
