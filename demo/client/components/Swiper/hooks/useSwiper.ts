@@ -1,14 +1,20 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-import { EmptyObject } from '../../../../../core/types/utils';
+import {
+    ISwiperConfig,
+    ISwiperData,
+    ISwiper,
+    ISwiperMethods,
+    ISwiperSlidesDataContext,
+} from '../types';
+import { ISwiperPluginInput } from '../plugins';
 
-import { ISwiperConfig, ISwiper, ISwiperMethods, ISwiperSlidesDataContext } from '../types';
-import { ISwiperPluginData } from '../plugins';
-
-export const useSwiper = <P extends EmptyObject>(config: ISwiperConfig<P>): ISwiper => {
+export const useSwiper = <Input extends ISwiperPluginInput>(
+    config: ISwiperConfig<Input>,
+): ISwiper => {
     const { plugin: Plugin, currentIndex, slidesCount, onChange, ...pluginProps } = config;
 
-    const [data, setData] = useState<ISwiperPluginData>({
+    const [data, setData] = useState<ISwiperData>({
         currentIndex: currentIndex || 0,
         slidesCount: slidesCount || 0,
     });
@@ -35,14 +41,13 @@ export const useSwiper = <P extends EmptyObject>(config: ISwiperConfig<P>): ISwi
     const pluginInstance = useMemo(
         () =>
             new Plugin({
+                ...pluginProps,
                 container,
                 slidesList,
                 slidesTrack,
                 slides,
-                slidesCount: data.slidesCount,
                 currentIndex: data.slidesCount,
                 updateIndex: setSlideIndex,
-                ...pluginProps,
             }),
         [],
     );
@@ -51,24 +56,13 @@ export const useSwiper = <P extends EmptyObject>(config: ISwiperConfig<P>): ISwi
 
     const methods = useMemo<ISwiperMethods>(
         () => ({
-            toPrevious: () => {
-                pluginInstance.transition({
-                    updateIndex: data.currentIndex - 1,
-                });
-            },
-            toNext: () => {
-                pluginInstance.transition({
-                    updateIndex: data.currentIndex + 1,
-                });
-            },
-            addSlide: (element) => {
-                element && slides.current.push(element);
-            },
-            setSlide: (index) => {
-                pluginInstance.transition({
-                    updateIndex: index,
-                });
-            },
+            toPrevious: () => pluginInstance.toPrevious(),
+            toNext: () => pluginInstance.toNext(),
+            setSlide: (index) =>
+                pluginInstance.setSlide({
+                    updatedIndex: index,
+                }),
+            addSlide: (element) => element && slides.current.push(element),
         }),
         [],
     );
@@ -81,12 +75,10 @@ export const useSwiper = <P extends EmptyObject>(config: ISwiperConfig<P>): ISwi
     );
 
     pluginInstance.setCurrentIndex(data.currentIndex);
-    pluginInstance.setSlidesCount(data.slidesCount);
 
     useLayoutEffect(() => {
-        pluginInstance.setSlidesCount(slides.current.length);
         pluginInstance.onMounted();
-        pluginInstance.transition({ updateIndex: data.currentIndex });
+        pluginInstance.setSlide({ updatedIndex: data.currentIndex });
         setSlidesCount(slides.current.length);
 
         return () => {
@@ -95,6 +87,7 @@ export const useSwiper = <P extends EmptyObject>(config: ISwiperConfig<P>): ISwi
     }, []);
 
     return {
+        plugin: pluginInstance,
         nodes: {
             container,
             slidesList,

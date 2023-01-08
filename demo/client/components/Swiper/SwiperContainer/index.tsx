@@ -1,21 +1,20 @@
 import React, { PropsWithChildren } from 'react';
 import cn from 'classnames';
 
-import { EmptyObject } from '../../../../../core/types/utils';
-
 import { ISwiperConfig, ISwiperContainerProps } from '../types';
 import { SwiperSlidesDataContext, SwiperMethodsContext } from '../context';
 import { useSwiper } from '../hooks';
+import { ISwiperPluginInput } from '../plugins';
 
-export function SwiperContainer<P extends EmptyObject>({
+export function SwiperContainer<Input extends ISwiperPluginInput>({
     children,
     className,
     paginator: Paginator,
     arrows: Arrows,
     ...config
-}: PropsWithChildren<ISwiperContainerProps<P>>) {
-    const { nodes, data, slidesData, methods, classNames } = useSwiper<P>(
-        config as ISwiperConfig<P>,
+}: PropsWithChildren<ISwiperContainerProps<Input>>) {
+    const { plugin, nodes, data, slidesData, methods, classNames } = useSwiper<Input>(
+        config as unknown as ISwiperConfig<Input>,
     );
 
     return (
@@ -35,12 +34,16 @@ export function SwiperContainer<P extends EmptyObject>({
                     </div>
                     {Arrows && (
                         <Arrows
+                            plugin={plugin}
+                            currentIndex={data.currentIndex}
+                            slidesCount={data.slidesCount}
                             toNext={methods.toNext}
                             toPrevious={methods.toPrevious}
                         />
                     )}
                     {Paginator && (
                         <Paginator
+                            plugin={plugin}
                             currentIndex={data.currentIndex}
                             slidesCount={data.slidesCount}
                             setSlide={methods.setSlide}

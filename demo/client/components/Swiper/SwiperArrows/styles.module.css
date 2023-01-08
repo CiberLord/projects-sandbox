@@ -1,0 +1,48 @@
+:root {
+    --size-56: 56px;
+}
+
+.container {
+    box-sizing: border-box;
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    z-index: 2;
+    pointer-events: none;
+    top: calc(50% - (var(--size-56) / 2));
+}
+
+.button {
+    position: relative;
+    width: var(--size-56);
+    height: var(--size-56);
+    display: flex;
+    pointer-events: auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 8px 12px rgba(8, 16, 29, 0.12);
+    cursor: pointer;
+    opacity: 1;
+    transition: all .2s;
+}
+
+.button:active {
+    transform: scale(0.9);
+}
+
+.prevButton {
+    left: calc(-1 * (var(--size-56) / 2));
+}
+
+.nextButton {
+    left: calc((var(--size-56) / 2));
+}
+
+.isStart,
+.isEnd {
+    pointer-events: none;
+    opacity: 0;
+}

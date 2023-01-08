@@ -1,23 +1,26 @@
 import { ComponentType } from 'react';
 
-import { EmptyObject } from '../../../../core/types/utils';
-
 import {
     ISwiperPluginClassnames,
-    ISwiperPluginChangeEvent,
     ISwiperPluginHTMLNodes,
-    ISwiperPluginData,
+    ISwiperPluginChangeEvent,
     ISwiperPluginBaseConfig,
+    ISwiperPluginInput,
     RootSwiperPlugin,
 } from './plugins';
 
-export interface IPaginator {
+export interface ISwiperData {
     currentIndex: number;
     slidesCount: number;
+}
+
+export interface ISwiperPagination extends ISwiperData {
+    plugin: RootSwiperPlugin<ISwiperPluginBaseConfig>;
     setSlide: (index: number) => void;
 }
 
-export interface IArrows {
+export interface ISwiperArrows extends ISwiperData {
+    plugin: RootSwiperPlugin<ISwiperPluginBaseConfig>;
     toNext: () => void;
     toPrevious: () => void;
 }
@@ -35,22 +38,26 @@ export interface ISwiperMethods {
 
 export type ISwiperMethodsContext = ISwiperMethods;
 
-export type ISwiperConfig<P extends EmptyObject> = {
-    plugin: new (config: ISwiperPluginBaseConfig) => RootSwiperPlugin<P>;
+export type ISwiperConfig<Input extends ISwiperPluginInput> = {
+    plugin: new (config: ISwiperPluginBaseConfig) => RootSwiperPlugin<ISwiperPluginBaseConfig>;
     currentIndex?: number;
     slidesCount?: number;
     onChange?: (event: ISwiperPluginChangeEvent) => void;
-} & P;
+} & Omit<Input, keyof ISwiperPluginBaseConfig>;
 
-export type ISwiperContainerProps<P extends EmptyObject> = {
+export type ISwiperContainerProps<Input extends ISwiperPluginInput> = {
+    plugin: new (config: Input) => RootSwiperPlugin<ISwiperPluginBaseConfig>;
     className?: string;
-    paginator?: ComponentType<IPaginator>;
-    arrows?: ComponentType<IArrows>;
-} & ISwiperConfig<P>;
+    paginator?: ComponentType<ISwiperPagination>;
+    arrows?: ComponentType<ISwiperArrows>;
+    currentIndex?: number;
+    slidesCount?: number;
+} & ISwiperConfig<Input>;
 
 export interface ISwiper {
+    plugin: RootSwiperPlugin<ISwiperPluginBaseConfig>;
     nodes: ISwiperPluginHTMLNodes;
-    data: ISwiperPluginData;
+    data: ISwiperData;
     slidesData: ISwiperSlidesDataContext;
     classNames: ISwiperPluginClassnames;
     methods: ISwiperMethods;
