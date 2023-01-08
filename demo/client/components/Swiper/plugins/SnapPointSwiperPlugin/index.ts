@@ -1,20 +1,20 @@
 import uniq from 'lodash/uniq';
-import { AnimationResult, Controller, SpringValue, CSS } from '@react-spring/web';
+import { AnimationResult, Controller, SpringValue } from '@react-spring/web';
 
 import {
-    ISwiperPluginClassnames,
     ISwiperPluginBaseConfig,
+    ISwiperPluginClassnames,
+    ISwiperPluginCSS,
     ISwiperPluginTransitionEvent,
     RootSwiperPlugin,
-    ISwiperPluginCSS,
 } from '../RootSwiperPlugin';
 
 import {
-    IGestureRecognizer,
-    createDragGestureRecognizer,
     calcSnapPointIndex,
+    createDragGestureRecognizer,
     getInToRange,
     getSnapPoints,
+    IGestureRecognizer,
 } from '../../utils';
 
 import styles from './styles.module.css';
@@ -45,6 +45,23 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         this.animateController = new Controller<ISpringValue>();
     }
 
+    private animate = (index: number, friction: number, tension: number) => {
+        this.currentIndex = getInToRange(index, 0, this.snapPoints.length);
+
+        this.animateController.start({
+            x: this.snapPoints[this.currentIndex],
+            onRest: () => {
+                this.updateIndex(this.currentIndex);
+                this.onChange?.({ currentIndex: this.currentIndex });
+            },
+            delay: undefined,
+            config: {
+                friction,
+                tension,
+            },
+        });
+    };
+
     public onMounted() {
         this.snapPoints = getSnapPoints({
             swiper: this.slidesList.current as HTMLDivElement,
@@ -71,27 +88,10 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
                 const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
                 const thresholdIndex = calcSnapPointIndex(this.snapPoints, updatedPosition);
 
-                this.setSlide({
-                    updatedIndex: thresholdIndex,
-                });
+                this.animate(thresholdIndex, 50, 500);
             },
             swipeHandler: ({ directionX }) => {
-                const updatedIndex = getInToRange(
-                    this.currentIndex - directionX,
-                    0,
-                    this.snapPoints.length,
-                );
-
-                this.animateController.start({
-                    x: this.snapPoints[updatedIndex],
-                    delay: undefined,
-                    config: {
-                        friction: 50,
-                        tension: 400,
-                    },
-                });
-
-                this.updateIndex(updatedIndex);
+                this.animate(this.currentIndex - directionX, 50, 300);
             },
         });
     }
@@ -120,19 +120,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
     }
 
     public setSlide(event: ISwiperPluginTransitionEvent): void {
-        const updatedIndex = getInToRange(event.updatedIndex, 0, this.snapPoints.length);
-
-        this.animateController.start({
-            x: this.snapPoints[updatedIndex],
-            onRest: () => this.onChange?.({ currentIndex: event.updatedIndex }),
-            delay: undefined,
-            config: {
-                friction: 50,
-                tension: 500,
-            },
-        });
-
-        this.updateIndex(updatedIndex);
+        this.animate(event.updatedIndex, 50, 500);
     }
 
     public toNext(): void {

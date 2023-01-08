@@ -18,20 +18,6 @@ export function SwiperContainer<Input extends ISwiperPluginInput>({
         config as unknown as ISwiperConfig<Input>,
     );
 
-    const { slidesTrack } = plugin.getStyle();
-
-    useEffect(() => {
-        console.log('change data = ', data);
-    }, [data]);
-
-    useEffect(() => {
-        console.log('re-create plugin');
-    }, [plugin]);
-
-    useEffect(() => {
-        console.log('change slidesTrack = ', slidesTrack);
-    }, [slidesTrack]);
-
     return (
         <SwiperMethodsContext.Provider value={methods}>
             <SwiperSlidesDataContext.Provider value={slidesData}>

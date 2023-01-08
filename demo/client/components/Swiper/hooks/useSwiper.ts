@@ -72,8 +72,6 @@ export const useSwiper = <Input extends ISwiperPluginInput>(
         [],
     );
 
-    pluginInstance.setCurrentIndex(data.currentIndex);
-
     useLayoutEffect(() => {
         pluginInstance.onMounted();
         pluginInstance.setSlide({ updatedIndex: data.currentIndex });

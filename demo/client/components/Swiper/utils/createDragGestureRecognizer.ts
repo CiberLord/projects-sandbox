@@ -1,4 +1,5 @@
 import { createGesture, dragAction } from '@use-gesture/vanilla';
+import Hammer from 'hammerjs';
 
 export interface IDragEvent {
     deltaX: number;
@@ -22,6 +23,19 @@ export interface IGestureRecognizer {
 
 export const createDragGestureRecognizer = (config: IInitDragConfig): IGestureRecognizer => {
     const gestureFactory = createGesture([dragAction]);
+
+    // const gestureManager = new Hammer(config.target);
+    //
+    // gestureManager.on('pan', (event) => {
+    //     config.dragHandler({
+    //         deltaX: event.deltaX,
+    //         deltaY: event.deltaY,
+    //         directionX: event.direction,
+    //         directionY: event.direction,
+    //         velocityX: event.velocityX,
+    //         velocityY: event.velocityY,
+    //     });
+    // });
 
     return gestureFactory(
         config.target,
@@ -57,9 +71,9 @@ export const createDragGestureRecognizer = (config: IInitDragConfig): IGestureRe
         },
         {
             drag: {
-                axis: 'x',
+                axis: 'lock',
                 swipe: {
-                    velocity: [0.3, 0.4],
+                    velocity: [0.3, 0.3],
                     distance: [20, 20],
                     duration: 260,
                 },
