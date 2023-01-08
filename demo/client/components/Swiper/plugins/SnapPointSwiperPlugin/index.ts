@@ -1,12 +1,13 @@
 import uniq from 'lodash/uniq';
 
-import { AnimationResult, Controller, SpringValue } from '@react-spring/web';
+import { AnimationResult, Controller, SpringValue, interpolate } from '@react-spring/web';
 
 import {
     ISwiperPluginClassnames,
     ISwiperPluginBaseConfig,
     ISwiperPluginTransitionEvent,
     RootSwiperPlugin,
+    ISwiperPluginCSS,
 } from '../RootSwiperPlugin';
 
 import {
@@ -41,17 +42,14 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         this.centered = configs.centered;
 
         this.snapPoints = [];
+        //
+        // this.renderCallback = (event) => {
+        //     (
+        //         this.slidesTrack.current as HTMLDivElement
+        //     ).style.transform = `translate3d(${event.value.x}px, 0px, 0px)`;
+        // };
 
-        this.renderCallback = (event) => {
-            (
-                this.slidesTrack.current as HTMLDivElement
-            ).style.transform = `translate3d(${event.value.x}px, 0px, 0px)`;
-        };
-
-        this.animateController = new Controller<ISpringValue>({
-            x: 0,
-            onChange: this.renderCallback,
-        });
+        this.animateController = new Controller<ISpringValue>();
     }
 
     public onMounted() {
@@ -113,6 +111,12 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             slidesListClassName: styles.slidesList,
             slidesTrackClassName: styles.slidesTrack,
             slideClassName: styles.slide,
+        };
+    }
+
+    public getStyle(): ISwiperPluginCSS {
+        return {
+            slidesTrack: this.animateController.springs,
         };
     }
 

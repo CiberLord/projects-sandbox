@@ -1,5 +1,5 @@
-import {} from '../types';
 import { RefObject } from 'react';
+import { CSS } from '@react-spring/web';
 
 export interface ISwiperPluginChangeEvent {
     currentIndex: number;
@@ -14,6 +14,10 @@ export interface ISwiperPluginClassnames {
     slidesListClassName?: string;
     slidesTrackClassName?: string;
     slideClassName?: string;
+}
+
+export interface ISwiperPluginCSS {
+    slidesTrack?: typeof CSS;
 }
 
 export interface ISwiperPluginHTMLNodes {
@@ -67,6 +71,10 @@ export class RootSwiperPlugin<Config extends ISwiperPluginBaseConfig> {
 
     // Возвращает базовые css-классы для правильной конфигурации слайдера для конкретного плагина.
     public getCSS(): ISwiperPluginClassnames {
+        return {};
+    }
+
+    public getStyle(): ISwiperPluginCSS {
         return {};
     }
 
