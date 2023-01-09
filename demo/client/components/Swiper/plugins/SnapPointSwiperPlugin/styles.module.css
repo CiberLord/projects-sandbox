@@ -12,16 +12,19 @@
 .slidesTrack {
     position: relative;
     display: flex;
-    touch-action: pan-y;
 
     box-sizing: border-box;
 
     will-change: transform;
+    transition-duration: 0ms;
+    transition-property: transform;
 }
 
 .slide {
+    transition-property: transform;
+    transform: translateZ(0);
     flex-shrink: 0;
-
+    backface-visibility: hidden;
     box-sizing: border-box;
 }
 

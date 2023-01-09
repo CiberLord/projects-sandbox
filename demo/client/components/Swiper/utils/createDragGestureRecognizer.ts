@@ -12,53 +12,139 @@ export interface IDragEvent {
 
 export interface IInitDragConfig {
     target: HTMLDivElement;
-    dragHandler: (event: IDragEvent) => void;
-    dragEndHandler: (event: IDragEvent) => void;
-    swipeHandler: (event: IDragEvent) => void;
+    dragStartHandler?: (event: IDragEvent) => void;
+    dragHandler?: (event: IDragEvent) => void;
+    dragEndHandler?: (event: IDragEvent) => void;
+    swipeHandler?: (event: IDragEvent) => void;
 }
 
 export interface IGestureRecognizer {
     destroy: () => void;
 }
 
-export const createDragGestureRecognizer = (config: IInitDragConfig): IGestureRecognizer => {
-    const gestureManager = new Hammer(config.target);
+interface IAxisVector {
+    x: number;
+    y: number;
+}
 
-    gestureManager.on('panmove', (event) => {
-        config.dragHandler({
+const getDirectionAxis = (direction: number): IAxisVector => {
+    switch (direction) {
+        case Hammer.DIRECTION_DOWN: {
+            return {
+                x: 0,
+                y: 1,
+            };
+        }
+        case Hammer.DIRECTION_UP: {
+            return {
+                x: 0,
+                y: -1,
+            };
+        }
+        case Hammer.DIRECTION_LEFT: {
+            return {
+                x: -1,
+                y: 0,
+            };
+        }
+        case Hammer.DIRECTION_RIGHT: {
+            return {
+                x: 1,
+                y: 0,
+            };
+        }
+        default: {
+            return {
+                x: 0,
+                y: 0,
+            };
+        }
+    }
+};
+
+export const createDragGestureRecognizer = (config: IInitDragConfig): IGestureRecognizer => {
+    const gestureManager = new Hammer(config.target, {
+        touchAction: 'compute',
+    });
+
+    const preventDrag = false;
+
+    gestureManager.on('panstart', (event) => {
+        const directionAxis = getDirectionAxis(event.direction);
+
+        if (directionAxis.y) {
+            gestureManager.stop(true);
+            return;
+        }
+
+        config?.dragStartHandler?.({
             deltaX: event.deltaX,
             deltaY: event.deltaY,
-            directionX: event.direction,
-            directionY: event.direction,
+            directionX: directionAxis.x,
+            directionY: directionAxis.y,
+            velocityX: event.velocityX,
+            velocityY: event.velocityY,
+        });
+    });
+
+    gestureManager.on('panmove', (event) => {
+        if (preventDrag) {
+            return;
+        }
+
+        const directionAxis = getDirectionAxis(event.direction);
+
+        config.dragHandler?.({
+            deltaX: event.deltaX,
+            deltaY: event.deltaY,
+            directionX: directionAxis.x,
+            directionY: directionAxis.y,
             velocityX: event.velocityX,
             velocityY: event.velocityY,
         });
     });
 
     gestureManager.on('panend', (event) => {
-        config.dragEndHandler({
+        if (preventDrag) {
+            return;
+        }
+
+        const directionAxis = getDirectionAxis(event.direction);
+
+        config.dragEndHandler?.({
             deltaX: event.deltaX,
             deltaY: event.deltaY,
-            directionX: event.direction,
-            directionY: event.direction,
+            directionX: directionAxis.x,
+            directionY: directionAxis.y,
             velocityX: event.velocityX,
             velocityY: event.velocityY,
         });
     });
 
     gestureManager.on('swipe', (event) => {
-        return config.swipeHandler({
+        if (preventDrag) {
+            return;
+        }
+
+        const directionAxis = getDirectionAxis(event.direction);
+
+        return config.swipeHandler?.({
             deltaX: event.deltaX,
             deltaY: event.deltaY,
-            directionX: event.direction,
-            directionY: event.direction,
+            directionX: directionAxis.x,
+            directionY: directionAxis.y,
             velocityX: event.velocityX,
             velocityY: event.velocityY,
         });
     });
 
     gestureManager.get('swipe').set({
-        direction: Hammer.DIRECTION_HORIZONTAL,
+        direction: Hammer.DIRECTION_ALL,
+        threshold: 15,
+    });
+
+    gestureManager.get('pan').set({
+        direction: Hammer.DIRECTION_ALL,
     });
 
     return gestureManager;

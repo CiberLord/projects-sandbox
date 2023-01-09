@@ -4,7 +4,6 @@ import { AnimationResult, Controller, SpringValue } from '@react-spring/web';
 import {
     ISwiperPluginBaseConfig,
     ISwiperPluginClassnames,
-    ISwiperPluginCSS,
     ISwiperPluginTransitionEvent,
     RootSwiperPlugin,
 } from '../RootSwiperPlugin';
@@ -45,53 +44,75 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         this.animateController = new Controller<ISpringValue>();
     }
 
-    private animate = (index: number, friction: number, tension: number) => {
-        this.currentIndex = getInToRange(index, 0, this.snapPoints.length);
+    private onUpdateTransitionEndListener = () => {
+        this.updateIndex(this.currentIndex);
 
-        this.animateController.start({
-            x: this.snapPoints[this.currentIndex],
-            onRest: () => {
-                this.updateIndex(this.currentIndex);
-                this.onChange?.({ currentIndex: this.currentIndex });
-            },
-            delay: undefined,
-            config: {
-                friction,
-                tension,
-            },
-        });
+        (this.slidesTrack.current as HTMLDivElement).style.transitionDuration = '0ms';
+
+        this.slidesTrack.current?.removeEventListener('transitionend', this.onSwipeEndListener);
     };
 
+    private transform = (x: number) => {
+        (
+            this.slidesTrack.current as HTMLDivElement
+        ).style.transform = `translate3d(${x}px, 0px, 0px)`;
+    };
+
+    private update = (index: number) => {
+        this.currentIndex = getInToRange(index, 0, this.snapPoints.length);
+
+        (this.slidesTrack.current as HTMLDivElement).style.transitionDuration = '300ms';
+
+        this.slidesTrack.current?.addEventListener(
+            'transitionend',
+            this.onUpdateTransitionEndListener,
+        );
+
+        setTimeout(() => this.transform(this.snapPoints[this.currentIndex]), 0);
+    };
+
+    // private animate = (index: number, friction: number, tension: number) => {
+    //     this.currentIndex = getInToRange(index, 0, this.snapPoints.length);
+    //
+    //     this.animateController.start({
+    //         x: this.snapPoints[this.currentIndex],
+    //         onRest: () => {
+    //             this.updateIndex(this.currentIndex);
+    //             this.onChange?.({ currentIndex: this.currentIndex });
+    //         },
+    //         delay: undefined,
+    //         config: {
+    //             friction,
+    //             tension,
+    //         },
+    //     });
+    // };
+
     public onMounted() {
+        const slidesTrack = this.slidesTrack.current as HTMLDivElement;
+
         this.snapPoints = getSnapPoints({
             swiper: this.slidesList.current as HTMLDivElement,
-            slidesContainer: this.slidesTrack.current as HTMLDivElement,
+            slidesContainer: slidesTrack,
             slides: this.slides.current as HTMLDivElement[],
             centered: this.centered,
         });
 
         this.gestureRecognizer = createDragGestureRecognizer({
-            target: this.slidesTrack.current as HTMLDivElement,
+            target: slidesTrack,
             dragHandler: ({ deltaX }) => {
                 const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
 
-                this.animateController.start({
-                    x: updatedPosition,
-                    delay: undefined,
-                    config: {
-                        friction: 50,
-                        tension: 800,
-                    },
-                });
+                this.transform(updatedPosition);
             },
-            dragEndHandler: ({ deltaX }) => {
+            dragEndHandler: ({ deltaX, directionX }) => {
                 const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
                 const thresholdIndex = calcSnapPointIndex(this.snapPoints, updatedPosition);
 
-                this.animate(thresholdIndex, 50, 500);
+                this.update(thresholdIndex);
             },
             swipeHandler: ({ directionX }) => {
-                this.animate(this.currentIndex - directionX, 50, 300);
+                this.update(this.currentIndex - directionX);
             },
         });
     }
@@ -109,29 +130,19 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         };
     }
 
-    public getStyle(): ISwiperPluginCSS {
-        return {
-            slidesTrack: this.animateController.springs,
-        };
-    }
-
     public getSwipesCount(): number {
         return uniq(this.snapPoints).length;
     }
 
     public setSlide(event: ISwiperPluginTransitionEvent): void {
-        this.animate(event.updatedIndex, 50, 500);
+        this.update(event.updatedIndex);
     }
 
     public toNext(): void {
-        this.setSlide({
-            updatedIndex: this.currentIndex + 1,
-        });
+        this.update(this.currentIndex + 1);
     }
 
     public toPrevious(): void {
-        this.setSlide({
-            updatedIndex: this.currentIndex - 1,
-        });
+        this.update(this.currentIndex - 1);
     }
 }

@@ -1,6 +1,5 @@
-import React, { PropsWithChildren, useEffect, useMemo } from 'react';
+import React, { PropsWithChildren } from 'react';
 import cn from 'classnames';
-import { animated } from '@react-spring/web';
 
 import { ISwiperConfig, ISwiperContainerProps } from '../types';
 import { SwiperSlidesDataContext, SwiperMethodsContext } from '../context';
@@ -27,12 +26,11 @@ export function SwiperContainer<Input extends ISwiperPluginInput>({
                     <div
                         ref={nodes.slidesList}
                         className={classNames.slidesListClassName}>
-                        <animated.div
+                        <div
                             ref={nodes.slidesTrack}
-                            className={classNames.slidesTrackClassName}
-                            style={plugin.getStyle().slidesTrack}>
+                            className={classNames.slidesTrackClassName}>
                             {children}
-                        </animated.div>
+                        </div>
                     </div>
                     {Arrows && (
                         <Arrows
