@@ -1,8 +1,5 @@
 //ssh -i .ssh/id_yandex_cloud yuldash@62.84.121.167
 
-import { gsap } from 'gsap';
-import Draggable from 'gsap/Draggable';
-import uniq from 'lodash/uniq';
 import { AnimationResult, Controller, SpringValue } from '@react-spring/web';
 
 import {
@@ -21,6 +18,7 @@ import {
 } from '../../utils';
 
 import styles from './styles.module.css';
+import { isReadable } from 'stream';
 
 export interface ISnapPointSwiperPluginProps extends ISwiperPluginBaseConfig {
     centered?: boolean;
@@ -29,8 +27,6 @@ export interface ISnapPointSwiperPluginProps extends ISwiperPluginBaseConfig {
 interface ISpringValue {
     x: number;
 }
-
-gsap.registerPlugin(Draggable);
 
 export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPluginProps> {
     centered?: boolean;
@@ -76,8 +72,6 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         this.transform(this.snapPoints[this.currentIndex]);
     };
 
-    startTime = 0;
-
     public onMounted() {
         const slidesTrack = this.slidesTrack.current as HTMLDivElement;
 
@@ -88,54 +82,60 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             centered: this.centered,
         });
 
-        Draggable.create(slidesTrack, {
-            type: 'x',
-            edgeResistance: 0.65,
-            inertia: true,
+        const anim = {
+            counter: 0,
+            startTime: 0,
+            currentTime: 0,
+            isRun: false,
+        };
+
+        this.gestureRecognizer = createDragGestureRecognizer({
+            target: slidesTrack,
+            dragStartHandler: ({ deltaX }) => {
+                anim.startTime = performance.now();
+                anim.isRun = true;
+            },
+            dragHandler: ({ deltaX }) => {
+                const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
+
+                this.transform(updatedPosition);
+            },
+            dragEndHandler: ({ deltaX, directionX }) => {
+                const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
+                const thresholdIndex = calcSnapPointIndex(this.snapPoints, updatedPosition);
+
+                this.update(
+                    Math.abs(this.currentIndex - thresholdIndex) > 1
+                        ? this.currentIndex + directionX
+                        : thresholdIndex,
+                );
+            },
+            swipeHandler: ({ directionX }) => {
+                this.update(this.currentIndex - directionX);
+            },
         });
 
-        // gsap.registerPlugin([Draggable]);
+        const tick = () => {
+            if (!anim.isRun) {
+                return requestAnimationFrame(tick);
+            }
 
-        // this.gestureRecognizer = createDragGestureRecognizer({
-        //     target: slidesTrack,
-        //     dragStartHandler: ({ deltaX }) => {
-        //         this.startTime = performance.now();
-        //         console.log('deltaX = ', deltaX);
-        //     },
-        //     dragHandler: ({ deltaX }) => {
-        //         const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
-        //
-        //         const now = performance.now();
-        //         // console.log('startTime = ', this.startTime, '  now = ', now);
-        //         const deltaTime = now - this.startTime;
-        //         this.startTime = now;
-        //         console.log('move; deltaTime = ', deltaTime, '  moveX = ', deltaX);
-        //
-        //         this.transform(updatedPosition);
-        //     },
-        //     dragEndHandler: ({ deltaX, directionX }) => {
-        //         const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
-        //         const thresholdIndex = calcSnapPointIndex(this.snapPoints, updatedPosition);
-        //
-        //         const now = performance.now();
-        //         const deltaTime = now - this.startTime;
-        //         this.startTime = now;
-        //         console.log('end drag; deltaTime = ', deltaTime, '  moveX = ', deltaX);
-        //
-        //         this.update(
-        //             Math.abs(this.currentIndex - thresholdIndex) > 1
-        //                 ? this.currentIndex + directionX
-        //                 : thresholdIndex,
-        //         );
-        //     },
-        //     swipeHandler: ({ directionX }) => {
-        //         this.update(this.currentIndex - directionX);
-        //     },
-        // });
+            anim.currentTime = performance.now() - anim.startTime;
+            anim.counter = anim.counter + 1;
+
+            if (anim.currentTime > 1000) {
+                console.log('fps = ', anim.counter, ' time = ', anim.currentTime);
+                return;
+            }
+
+            requestAnimationFrame(tick);
+        };
+
+        requestAnimationFrame(tick);
     }
 
     public onWillUnmounted() {
-        // this.gestureRecognizer.destroy();
+        this.gestureRecognizer.destroy();
     }
 
     public getCSS(): ISwiperPluginClassnames {
