@@ -1,5 +1,7 @@
 //ssh -i .ssh/id_yandex_cloud yuldash@62.84.121.167
 
+import { gsap } from 'gsap';
+import Draggable from 'gsap/Draggable';
 import uniq from 'lodash/uniq';
 import { AnimationResult, Controller, SpringValue } from '@react-spring/web';
 
@@ -27,6 +29,8 @@ export interface ISnapPointSwiperPluginProps extends ISwiperPluginBaseConfig {
 interface ISpringValue {
     x: number;
 }
+
+gsap.registerPlugin(Draggable);
 
 export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPluginProps> {
     centered?: boolean;
@@ -84,46 +88,54 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             centered: this.centered,
         });
 
-        this.gestureRecognizer = createDragGestureRecognizer({
-            target: slidesTrack,
-            dragStartHandler: ({ deltaX }) => {
-                this.startTime = performance.now();
-                console.log('deltaX = ', deltaX);
-            },
-            dragHandler: ({ deltaX }) => {
-                const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
-
-                const now = performance.now();
-                // console.log('startTime = ', this.startTime, '  now = ', now);
-                const deltaTime = now - this.startTime;
-                this.startTime = now;
-                console.log('move; deltaTime = ', deltaTime, '  moveX = ', deltaX);
-
-                this.transform(updatedPosition);
-            },
-            dragEndHandler: ({ deltaX, directionX }) => {
-                const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
-                const thresholdIndex = calcSnapPointIndex(this.snapPoints, updatedPosition);
-
-                const now = performance.now();
-                const deltaTime = now - this.startTime;
-                this.startTime = now;
-                console.log('end drag; deltaTime = ', deltaTime, '  moveX = ', deltaX);
-
-                this.update(
-                    Math.abs(this.currentIndex - thresholdIndex) > 1
-                        ? this.currentIndex + directionX
-                        : thresholdIndex,
-                );
-            },
-            swipeHandler: ({ directionX }) => {
-                this.update(this.currentIndex - directionX);
-            },
+        Draggable.create(slidesTrack, {
+            type: 'x',
+            edgeResistance: 0.65,
+            inertia: true,
         });
+
+        // gsap.registerPlugin([Draggable]);
+
+        // this.gestureRecognizer = createDragGestureRecognizer({
+        //     target: slidesTrack,
+        //     dragStartHandler: ({ deltaX }) => {
+        //         this.startTime = performance.now();
+        //         console.log('deltaX = ', deltaX);
+        //     },
+        //     dragHandler: ({ deltaX }) => {
+        //         const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
+        //
+        //         const now = performance.now();
+        //         // console.log('startTime = ', this.startTime, '  now = ', now);
+        //         const deltaTime = now - this.startTime;
+        //         this.startTime = now;
+        //         console.log('move; deltaTime = ', deltaTime, '  moveX = ', deltaX);
+        //
+        //         this.transform(updatedPosition);
+        //     },
+        //     dragEndHandler: ({ deltaX, directionX }) => {
+        //         const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
+        //         const thresholdIndex = calcSnapPointIndex(this.snapPoints, updatedPosition);
+        //
+        //         const now = performance.now();
+        //         const deltaTime = now - this.startTime;
+        //         this.startTime = now;
+        //         console.log('end drag; deltaTime = ', deltaTime, '  moveX = ', deltaX);
+        //
+        //         this.update(
+        //             Math.abs(this.currentIndex - thresholdIndex) > 1
+        //                 ? this.currentIndex + directionX
+        //                 : thresholdIndex,
+        //         );
+        //     },
+        //     swipeHandler: ({ directionX }) => {
+        //         this.update(this.currentIndex - directionX);
+        //     },
+        // });
     }
 
     public onWillUnmounted() {
-        this.gestureRecognizer.destroy();
+        // this.gestureRecognizer.destroy();
     }
 
     public getCSS(): ISwiperPluginClassnames {
@@ -133,10 +145,6 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             slidesTrackClassName: styles.slidesTrack,
             slideClassName: styles.slide,
         };
-    }
-
-    public getSwipesCount(): number {
-        return uniq(this.snapPoints).length;
     }
 
     public setSlide(event: ISwiperPluginTransitionEvent): void {
