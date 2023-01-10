@@ -68,25 +68,8 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             this.onUpdateTransitionEndListener,
         );
 
-        setTimeout(() => this.transform(this.snapPoints[this.currentIndex]), 0);
+        this.transform(this.snapPoints[this.currentIndex]);
     };
-
-    // private animate = (index: number, friction: number, tension: number) => {
-    //     this.currentIndex = getInToRange(index, 0, this.snapPoints.length);
-    //
-    //     this.animateController.start({
-    //         x: this.snapPoints[this.currentIndex],
-    //         onRest: () => {
-    //             this.updateIndex(this.currentIndex);
-    //             this.onChange?.({ currentIndex: this.currentIndex });
-    //         },
-    //         delay: undefined,
-    //         config: {
-    //             friction,
-    //             tension,
-    //         },
-    //     });
-    // };
 
     public onMounted() {
         const slidesTrack = this.slidesTrack.current as HTMLDivElement;
@@ -109,9 +92,19 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
                 const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
                 const thresholdIndex = calcSnapPointIndex(this.snapPoints, updatedPosition);
 
-                this.update(thresholdIndex);
+                console.log('drag end nextIndex = ', thresholdIndex);
+                console.log('cuurent index = ', this.currentIndex);
+
+                this.update(
+                    Math.abs(this.currentIndex - thresholdIndex) > 1
+                        ? this.currentIndex + directionX
+                        : thresholdIndex,
+                );
             },
             swipeHandler: ({ directionX }) => {
+                console.log('swipeee end nextIndex = ', this.currentIndex - directionX);
+                console.log('cuurent index = ', this.currentIndex);
+
                 this.update(this.currentIndex - directionX);
             },
         });

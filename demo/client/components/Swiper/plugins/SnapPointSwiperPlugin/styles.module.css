@@ -12,7 +12,7 @@
 .slidesTrack {
     position: relative;
     display: flex;
-
+    touch-action: none;
     box-sizing: border-box;
 
     will-change: transform;

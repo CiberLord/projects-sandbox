@@ -63,133 +63,149 @@ const getDirectionAxis = (direction: number): IAxisVector => {
 };
 
 export const createDragGestureRecognizer = (config: IInitDragConfig): IGestureRecognizer => {
-    const gestureManager = new Hammer(config.target, {
-        touchAction: 'compute',
-    });
-
-    const preventDrag = false;
-
-    gestureManager.on('panstart', (event) => {
-        const directionAxis = getDirectionAxis(event.direction);
-
-        if (directionAxis.y) {
-            gestureManager.stop(true);
-            return;
-        }
-
-        config?.dragStartHandler?.({
-            deltaX: event.deltaX,
-            deltaY: event.deltaY,
-            directionX: directionAxis.x,
-            directionY: directionAxis.y,
-            velocityX: event.velocityX,
-            velocityY: event.velocityY,
-        });
-    });
-
-    gestureManager.on('panmove', (event) => {
-        if (preventDrag) {
-            return;
-        }
-
-        const directionAxis = getDirectionAxis(event.direction);
-
-        config.dragHandler?.({
-            deltaX: event.deltaX,
-            deltaY: event.deltaY,
-            directionX: directionAxis.x,
-            directionY: directionAxis.y,
-            velocityX: event.velocityX,
-            velocityY: event.velocityY,
-        });
-    });
-
-    gestureManager.on('panend', (event) => {
-        if (preventDrag) {
-            return;
-        }
-
-        const directionAxis = getDirectionAxis(event.direction);
-
-        config.dragEndHandler?.({
-            deltaX: event.deltaX,
-            deltaY: event.deltaY,
-            directionX: directionAxis.x,
-            directionY: directionAxis.y,
-            velocityX: event.velocityX,
-            velocityY: event.velocityY,
-        });
-    });
-
-    gestureManager.on('swipe', (event) => {
-        if (preventDrag) {
-            return;
-        }
-
-        const directionAxis = getDirectionAxis(event.direction);
-
-        return config.swipeHandler?.({
-            deltaX: event.deltaX,
-            deltaY: event.deltaY,
-            directionX: directionAxis.x,
-            directionY: directionAxis.y,
-            velocityX: event.velocityX,
-            velocityY: event.velocityY,
-        });
-    });
-
-    gestureManager.get('swipe').set({
-        direction: Hammer.DIRECTION_ALL,
-        threshold: 15,
-    });
-
-    gestureManager.get('pan').set({
-        direction: Hammer.DIRECTION_ALL,
-    });
-
-    return gestureManager;
-
-    // return gestureFactory(
-    //     config.target,
-    //     {
-    //         onDrag: ({ movement, direction, velocity }) => {
-    //             config.dragHandler({
-    //                 deltaX: movement[0],
-    //                 deltaY: movement[1],
-    //                 directionX: direction[0],
-    //                 directionY: direction[1],
-    //                 velocityX: velocity[0],
-    //                 velocityY: velocity[1],
-    //             });
-    //         },
-    //         onDragEnd: ({ movement, swipe: [swipeX], direction, velocity }) => {
-    //             const event = {
-    //                 deltaX: movement[0],
-    //                 deltaY: movement[1],
-    //                 directionX: direction[0],
-    //                 directionY: direction[1],
-    //                 velocityX: velocity[0],
-    //                 velocityY: velocity[1],
-    //             };
+    // const gestureManager = new Hammer(config.target, {
+    //     domEvents: false,
+    // });
     //
-    //             if (swipeX !== 0) {
-    //                 event.directionX = swipeX;
+    // let isSwipe = false;
+    // let preventDrag = false;
     //
-    //                 return config.swipeHandler(event);
-    //             }
+    // gestureManager.on('panstart', (event) => {
+    //     const directionAxis = getDirectionAxis(event.direction);
+    //     isSwipe = false;
+    //     if (directionAxis.y) {
+    //         preventDrag = false;
+    //         gestureManager.stop(true);
+    //         return;
+    //     }
     //
-    //             config.dragEndHandler(event);
-    //         },
-    //     },
-    //     {
-    //         drag: {
-    //             axis: 'lock',
-    //             swipe: {
-    //                 velocity: [0.3, 0.3],
-    //                 distance: [20, 20],
-    //                 duration: 260,
-    //             },
-    //         },
-    //     },
-    // );
+    //     config?.dragStartHandler?.({
+    //         deltaX: event.deltaX,
+    //         deltaY: event.deltaY,
+    //         directionX: directionAxis.x,
+    //         directionY: directionAxis.y,
+    //         velocityX: event.velocityX,
+    //         velocityY: event.velocityY,
+    //     });
+    // });
+    //
+    // gestureManager.on('panmove', (event) => {
+    //     if (preventDrag) {
+    //         return;
+    //     }
+    //
+    //     const directionAxis = getDirectionAxis(event.direction);
+    //
+    //     config.dragHandler?.({
+    //         deltaX: event.deltaX,
+    //         deltaY: event.deltaY,
+    //         directionX: directionAxis.x,
+    //         directionY: directionAxis.y,
+    //         velocityX: event.velocityX,
+    //         velocityY: event.velocityY,
+    //     });
+    // });
+    //
+    // gestureManager.on('panend', (event) => {
+    //     if (preventDrag || isSwipe) {
+    //         return;
+    //     }
+    //
+    //     const directionAxis = getDirectionAxis(event.direction);
+    //
+    //     config.dragEndHandler?.({
+    //         deltaX: event.deltaX,
+    //         deltaY: event.deltaY,
+    //         directionX: directionAxis.x,
+    //         directionY: directionAxis.y,
+    //         velocityX: event.velocityX,
+    //         velocityY: event.velocityY,
+    //     });
+    // });
+    //
+    // gestureManager.on('swipe', (event) => {
+    //     if (preventDrag) {
+    //         return;
+    //     }
+    //
+    //     isSwipe = true;
+    //
+    //     const directionAxis = getDirectionAxis(event.direction);
+    //
+    //     return config.swipeHandler?.({
+    //         deltaX: event.deltaX,
+    //         deltaY: event.deltaY,
+    //         directionX: directionAxis.x,
+    //         directionY: directionAxis.y,
+    //         velocityX: event.velocityX,
+    //         velocityY: event.velocityY,
+    //     });
+    // });
+    //
+    // gestureManager.get('swipe').set({
+    //     direction: Hammer.DIRECTION_ALL,
+    //     threshold: 15,
+    // });
+    //
+    // gestureManager.get('pan').set({
+    //     direction: Hammer.DIRECTION_ALL,
+    // });
+    //
+    // return gestureManager;
+
+    const gestureFactory = createGesture([dragAction]);
+
+    return gestureFactory(
+        config.target,
+        {
+            onDragStart: ({ movement, direction, velocity }) => {
+                config.dragHandler?.({
+                    deltaX: movement[0],
+                    deltaY: movement[1],
+                    directionX: direction[0],
+                    directionY: direction[1],
+                    velocityX: velocity[0],
+                    velocityY: velocity[1],
+                });
+            },
+            onDrag: ({ movement, direction, velocity }) => {
+                config.dragHandler?.({
+                    deltaX: movement[0],
+                    deltaY: movement[1],
+                    directionX: direction[0],
+                    directionY: direction[1],
+                    velocityX: velocity[0],
+                    velocityY: velocity[1],
+                });
+            },
+            onDragEnd: ({ movement, swipe: [swipeX], direction, velocity }) => {
+                const event = {
+                    deltaX: movement[0],
+                    deltaY: movement[1],
+                    directionX: direction[0],
+                    directionY: direction[1],
+                    velocityX: velocity[0],
+                    velocityY: velocity[1],
+                };
+
+                if (swipeX !== 0) {
+                    event.directionX = swipeX;
+
+                    return config.swipeHandler?.(event);
+                }
+
+                config.dragEndHandler?.(event);
+            },
+        },
+        {
+            drag: {
+                axis: 'lock',
+                swipe: {
+                    velocity: [0.3, 0.3],
+                    distance: [20, 20],
+                    duration: 260,
+                },
+            },
+        },
+    );
 };
