@@ -159,7 +159,7 @@ export const createDragGestureRecognizer = (config: IInitDragConfig): IGestureRe
         config.target,
         {
             onDragStart: ({ movement, direction, velocity }) => {
-                config.dragHandler?.({
+                config.dragStartHandler?.({
                     deltaX: movement[0],
                     deltaY: movement[1],
                     directionX: direction[0],

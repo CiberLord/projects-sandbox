@@ -1,3 +1,5 @@
+//ssh -i .ssh/id_yandex_cloud yuldash@62.84.121.167
+
 import uniq from 'lodash/uniq';
 import { AnimationResult, Controller, SpringValue } from '@react-spring/web';
 
@@ -48,28 +50,29 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         this.updateIndex(this.currentIndex);
 
         (this.slidesTrack.current as HTMLDivElement).style.transitionDuration = '0ms';
-
-        this.slidesTrack.current?.removeEventListener('transitionend', this.onSwipeEndListener);
     };
 
     private transform = (x: number) => {
-        (
-            this.slidesTrack.current as HTMLDivElement
-        ).style.transform = `translate3d(${x}px, 0px, 0px)`;
+        (this.slidesTrack.current as HTMLDivElement).style.transform = `translateX(${x}px)`;
     };
 
     private update = (index: number) => {
         this.currentIndex = getInToRange(index, 0, this.snapPoints.length);
 
-        (this.slidesTrack.current as HTMLDivElement).style.transitionDuration = '300ms';
+        (this.slidesTrack.current as HTMLDivElement).style.transitionDuration = '400ms';
 
         this.slidesTrack.current?.addEventListener(
             'transitionend',
             this.onUpdateTransitionEndListener,
+            {
+                once: true,
+            },
         );
 
         this.transform(this.snapPoints[this.currentIndex]);
     };
+
+    startTime = 0;
 
     public onMounted() {
         const slidesTrack = this.slidesTrack.current as HTMLDivElement;
@@ -83,8 +86,18 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
 
         this.gestureRecognizer = createDragGestureRecognizer({
             target: slidesTrack,
+            dragStartHandler: ({ deltaX }) => {
+                this.startTime = performance.now();
+                console.log('deltaX = ', deltaX);
+            },
             dragHandler: ({ deltaX }) => {
                 const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
+
+                const now = performance.now();
+                // console.log('startTime = ', this.startTime, '  now = ', now);
+                const deltaTime = now - this.startTime;
+                this.startTime = now;
+                console.log('move; deltaTime = ', deltaTime, '  moveX = ', deltaX);
 
                 this.transform(updatedPosition);
             },
@@ -92,8 +105,10 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
                 const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
                 const thresholdIndex = calcSnapPointIndex(this.snapPoints, updatedPosition);
 
-                console.log('drag end nextIndex = ', thresholdIndex);
-                console.log('cuurent index = ', this.currentIndex);
+                const now = performance.now();
+                const deltaTime = now - this.startTime;
+                this.startTime = now;
+                console.log('end drag; deltaTime = ', deltaTime, '  moveX = ', deltaX);
 
                 this.update(
                     Math.abs(this.currentIndex - thresholdIndex) > 1
@@ -102,9 +117,6 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
                 );
             },
             swipeHandler: ({ directionX }) => {
-                console.log('swipeee end nextIndex = ', this.currentIndex - directionX);
-                console.log('cuurent index = ', this.currentIndex);
-
                 this.update(this.currentIndex - directionX);
             },
         });

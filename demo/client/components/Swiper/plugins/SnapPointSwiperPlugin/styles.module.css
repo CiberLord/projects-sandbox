@@ -7,6 +7,7 @@
     position: relative;
     overflow-x: hidden;
     box-sizing: border-box;
+    z-index: 1;
 }
 
 .slidesTrack {
@@ -17,7 +18,9 @@
 
     will-change: transform;
     transition-duration: 0ms;
+    transition-delay: 0ms;
     transition-property: transform;
+    z-index: 1;
 }
 
 .slide {
