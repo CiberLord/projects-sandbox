@@ -1,31 +1,26 @@
 .container {
     position: relative;
     box-sizing: border-box;
+    touch-action: pan-y;
 }
 
 .slidesList {
     position: relative;
     overflow-x: hidden;
     box-sizing: border-box;
-    z-index: 1;
 }
 
 .slidesTrack {
     position: relative;
     display: flex;
-    touch-action: none;
+    touch-action: pan-y;
     box-sizing: border-box;
-
     will-change: transform;
-    transition-duration: 0ms;
-    transition-delay: 0ms;
-    transition-property: transform;
-    z-index: 1;
+    z-index: 2;
+    backface-visibility: hidden;
 }
 
 .slide {
-    transition-property: transform;
-    transform: translateZ(0);
     flex-shrink: 0;
     backface-visibility: hidden;
     box-sizing: border-box;

@@ -1,6 +1,8 @@
 import uniq from 'lodash/uniq';
 
-import { getInToRange, getSnapPoints, calcSnapPointIndex } from '../../utils';
+import { getInToRange } from '../../utils/getInToRange';
+import { getSnapPoints } from '../../utils/getSnapPoints';
+import { calcSnapPointIndex } from '../../utils/calcSnapPointIndex';
 
 import {
     ISwiperPluginClassnames,

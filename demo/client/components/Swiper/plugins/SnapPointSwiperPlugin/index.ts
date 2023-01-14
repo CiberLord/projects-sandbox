@@ -9,16 +9,13 @@ import {
     RootSwiperPlugin,
 } from '../RootSwiperPlugin';
 
-import {
-    calcSnapPointIndex,
-    createDragGestureRecognizer,
-    getInToRange,
-    getSnapPoints,
-    IGestureRecognizer,
-} from '../../utils';
+import { getInToRange } from '../../utils/getInToRange';
+import { getSnapPoints } from '../../utils/getSnapPoints';
+import { calcSnapPointIndex } from '../../utils/calcSnapPointIndex';
+import { createDragGestureController } from '../../utils/dragGestureController';
+import { IDragGestureController } from '../../utils/dragGestureController/types';
 
 import styles from './styles.module.css';
-import { isReadable } from 'stream';
 
 export interface ISnapPointSwiperPluginProps extends ISwiperPluginBaseConfig {
     centered?: boolean;
@@ -34,7 +31,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
     animateController: Controller<ISpringValue>;
     renderCallback: (event: AnimationResult<SpringValue<ISpringValue>>) => void;
 
-    gestureRecognizer: IGestureRecognizer;
+    gestureController: IDragGestureController;
 
     constructor(configs: ISnapPointSwiperPluginProps) {
         super(configs);
@@ -43,33 +40,36 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
 
         this.snapPoints = [];
 
-        this.animateController = new Controller<ISpringValue>();
+        this.animateController = new Controller<ISpringValue>({
+            x: 0,
+            onChange: (event) => {
+                (
+                    this.slidesTrack.current as HTMLDivElement
+                ).style.transform = `translate3d(${event.value.x}px, 0px, 0px)`;
+            },
+        });
     }
 
-    private onUpdateTransitionEndListener = () => {
-        this.updateIndex(this.currentIndex);
-
-        (this.slidesTrack.current as HTMLDivElement).style.transitionDuration = '0ms';
-    };
-
-    private transform = (x: number) => {
-        (this.slidesTrack.current as HTMLDivElement).style.transform = `translateX(${x}px)`;
-    };
-
-    private update = (index: number) => {
+    private update = (index: number, velocityX?: number) => {
+        const prevIndex = this.currentIndex;
         this.currentIndex = getInToRange(index, 0, this.snapPoints.length);
 
-        (this.slidesTrack.current as HTMLDivElement).style.transitionDuration = '400ms';
+        this.animateController.start({
+            x: this.snapPoints[this.currentIndex],
+            onRest: () => {
+                if (prevIndex === this.currentIndex) {
+                    return;
+                }
 
-        this.slidesTrack.current?.addEventListener(
-            'transitionend',
-            this.onUpdateTransitionEndListener,
-            {
-                once: true,
+                this.onChange?.({ currentIndex: this.currentIndex });
+                this.updateIndex(this.currentIndex);
             },
-        );
-
-        this.transform(this.snapPoints[this.currentIndex]);
+            config: {
+                friction: 50,
+                tension: 400,
+                velocity: velocityX || 0,
+            },
+        });
     };
 
     public onMounted() {
@@ -82,60 +82,36 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             centered: this.centered,
         });
 
-        const anim = {
-            counter: 0,
-            startTime: 0,
-            currentTime: 0,
-            isRun: false,
-        };
-
-        this.gestureRecognizer = createDragGestureRecognizer({
+        this.gestureController = createDragGestureController({
             target: slidesTrack,
-            dragStartHandler: ({ deltaX }) => {
-                anim.startTime = performance.now();
-                anim.isRun = true;
-            },
-            dragHandler: ({ deltaX }) => {
-                const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
+            onDrag: ({ delta }) => {
+                const updatedPosition = this.snapPoints[this.currentIndex] + delta.x;
 
-                this.transform(updatedPosition);
+                this.animateController.start({
+                    x: updatedPosition,
+                    config: {
+                        friction: 50,
+                        tension: 800,
+                    },
+                });
             },
-            dragEndHandler: ({ deltaX, directionX }) => {
-                const updatedPosition = this.snapPoints[this.currentIndex] + deltaX;
+            onDragEnd: ({ delta, direction }) => {
+                const updatedPosition = this.snapPoints[this.currentIndex] + delta.x;
                 const thresholdIndex = calcSnapPointIndex(this.snapPoints, updatedPosition);
-
                 this.update(
                     Math.abs(this.currentIndex - thresholdIndex) > 1
-                        ? this.currentIndex + directionX
+                        ? this.currentIndex + direction.x
                         : thresholdIndex,
                 );
             },
-            swipeHandler: ({ directionX }) => {
-                this.update(this.currentIndex - directionX);
+            onSwipe: ({ direction }) => {
+                this.update(this.currentIndex - direction.x);
             },
         });
-
-        const tick = () => {
-            if (!anim.isRun) {
-                return requestAnimationFrame(tick);
-            }
-
-            anim.currentTime = performance.now() - anim.startTime;
-            anim.counter = anim.counter + 1;
-
-            if (anim.currentTime > 1000) {
-                console.log('fps = ', anim.counter, ' time = ', anim.currentTime);
-                return;
-            }
-
-            requestAnimationFrame(tick);
-        };
-
-        requestAnimationFrame(tick);
     }
 
     public onWillUnmounted() {
-        this.gestureRecognizer.destroy();
+        this.gestureController.destroy();
     }
 
     public getCSS(): ISwiperPluginClassnames {
