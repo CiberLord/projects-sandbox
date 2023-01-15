@@ -25,8 +25,6 @@ export const createDragGestureController = (
     };
 
     const touchStartListener = (event: TouchEvent) => {
-        console.log('TOUCH START');
-
         state.startTime = performance.now();
         state.startPosition.x = event.touches[0].clientX;
         state.startPosition.y = event.touches[0].clientY;
@@ -68,20 +66,14 @@ export const createDragGestureController = (
             currentPosition: state.currentPosition,
         };
 
-        if (state.direction.x && options.axis === 'x') {
+        if (state.direction.x) {
             event.preventDefault();
 
-            console.log('HORIZONTAL SCROLL');
-
             config.onDrag?.(dragEvent);
-        }
 
-        if (state.direction.y && options.axis === 'y') {
-            event.preventDefault();
+            state.isFirst = false;
 
-            console.log('VERTICAL SCROLL');
-
-            config.onDrag?.(dragEvent);
+            return;
         }
 
         state.isFirst = false;
@@ -95,9 +87,7 @@ export const createDragGestureController = (
 
         const deltaTime = performance.now() - state.startTime;
         const isSwipe =
-            deltaTime < options.swipe.threshold &&
-            Math.abs(state.delta.x) > options.swipe.distance &&
-            state.direction.x;
+            deltaTime < options.swipe.threshold && Math.abs(state.delta.x) > options.swipe.distance;
 
         const dragEvent: IDragGestureEvent = {
             event,
@@ -108,23 +98,33 @@ export const createDragGestureController = (
             currentPosition: state.currentPosition,
         };
 
-        if (isSwipe) {
-            config.onSwipe?.(dragEvent);
-        } else {
-            config.onDragEnd?.(dragEvent);
+        if (state.direction.x) {
+            event.preventDefault();
+
+            if (isSwipe) {
+                config.onSwipe?.(dragEvent);
+            } else {
+                config.onDragEnd?.(dragEvent);
+            }
         }
 
         resetState();
     };
 
-    config.target.addEventListener('touchstart', touchStartListener, listenerOptions);
+    const touchForceChangeListener = (event: TouchEvent) => {
+        event.preventDefault();
+    };
+
     config.target.addEventListener('touchmove', touchMoveListener, listenerOptions);
+    config.target.addEventListener('touchforcechange', touchForceChangeListener, listenerOptions);
+    config.target.addEventListener('touchstart', touchStartListener, listenerOptions);
     config.target.addEventListener('touchend', touchEndListener, listenerOptions);
 
     return {
         destroy: () => {
             config.target.removeEventListener('touchstart', touchStartListener);
             config.target.removeEventListener('touchmove', touchMoveListener);
+            config.target.removeEventListener('touchforcechange', touchForceChangeListener);
         },
     };
 };

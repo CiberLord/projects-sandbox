@@ -83,7 +83,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         });
 
         this.gestureController = createDragGestureController({
-            target: slidesTrack,
+            target: this.slidesList.current as HTMLDivElement,
             onDrag: ({ delta }) => {
                 const updatedPosition = this.snapPoints[this.currentIndex] + delta.x;
 
