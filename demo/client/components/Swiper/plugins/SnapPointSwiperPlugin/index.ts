@@ -12,8 +12,8 @@ import {
 import { getInToRange } from '../../utils/getInToRange';
 import { getSnapPoints } from '../../utils/getSnapPoints';
 import { calcSnapPointIndex } from '../../utils/calcSnapPointIndex';
-import { createDragGestureController } from '../../utils/dragGestureController';
-import { IDragGestureController } from '../../utils/dragGestureController/types';
+import { createDragGestureRecognizer } from '../../utils/dragGestureRecognizer';
+import { IDragGestureRecognizer } from '../../utils/dragGestureRecognizer/types';
 
 import styles from './styles.module.css';
 
@@ -31,7 +31,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
     animateController: Controller<ISpringValue>;
     renderCallback: (event: AnimationResult<SpringValue<ISpringValue>>) => void;
 
-    gestureController: IDragGestureController;
+    gestureRecognizer: IDragGestureRecognizer;
 
     constructor(configs: ISnapPointSwiperPluginProps) {
         super(configs);
@@ -50,7 +50,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
         });
     }
 
-    private update = (index: number, velocityX?: number) => {
+    private update = (index: number) => {
         const prevIndex = this.currentIndex;
         this.currentIndex = getInToRange(index, 0, this.snapPoints.length);
 
@@ -67,7 +67,6 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             config: {
                 friction: 50,
                 tension: 400,
-                velocity: velocityX || 0,
             },
         });
     };
@@ -82,7 +81,7 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             centered: this.centered,
         });
 
-        this.gestureController = createDragGestureController({
+        this.gestureRecognizer = createDragGestureRecognizer({
             target: this.slidesList.current as HTMLDivElement,
             onDrag: ({ delta }) => {
                 const updatedPosition = this.snapPoints[this.currentIndex] + delta.x;
@@ -107,11 +106,17 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
             onSwipe: ({ direction }) => {
                 this.update(this.currentIndex - direction.x);
             },
+            options: {
+                boundaryTension: {
+                    isStart: () => this.currentIndex === 0,
+                    isEnd: () => this.currentIndex === this.snapPoints.length - 1,
+                },
+            },
         });
     }
 
     public onWillUnmounted() {
-        this.gestureController.destroy();
+        this.gestureRecognizer.destroy();
     }
 
     public getCSS(): ISwiperPluginClassnames {

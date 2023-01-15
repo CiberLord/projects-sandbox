@@ -66,10 +66,6 @@ export class FreeModeSwiperPlugin extends RootSwiperPlugin<IFreeModeSwiperPlugin
         };
     }
 
-    public getSwipesCount(): number {
-        return uniq(this.snapPoints).length;
-    }
-
     public setSlide(event: ISwiperPluginTransitionEvent): void {
         const updatedIndex = getInToRange(event.updatedIndex, 0, this.snapPoints.length);
 

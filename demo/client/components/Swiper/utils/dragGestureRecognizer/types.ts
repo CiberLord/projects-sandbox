@@ -6,6 +6,7 @@ export type IVector2 = {
 export interface IDragGestureState {
     isFirst: boolean;
     startTime: number;
+    endTime: number;
     delta: IVector2;
     direction: IVector2;
     currentPosition: IVector2;
@@ -21,12 +22,23 @@ export interface IDragGestureEvent {
     event: TouchEvent;
 }
 
+export enum DragGestureAxis {
+    X = 'X',
+    Y = 'Y',
+    XY = 'XY',
+}
+
 export interface IDragGestureOptions {
     swipe?: {
         threshold: number;
         distance: number;
     };
-    axis?: 'x' | 'y' | 'xy';
+    axis?: DragGestureAxis;
+    boundaryTension?: {
+        easing: number;
+        isStart: () => boolean;
+        isEnd: () => boolean;
+    };
 }
 
 export interface IDragGestureConstructor {
@@ -38,6 +50,6 @@ export interface IDragGestureConstructor {
     options?: IDragGestureOptions;
 }
 
-export interface IDragGestureController {
+export interface IDragGestureRecognizer {
     destroy: () => void;
 }
