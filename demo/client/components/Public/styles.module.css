@@ -7,8 +7,12 @@
     box-sizing: border-box;
     border-radius: 12px;
     background: #d0b0f1;
-    padding: 24px 0;
+    padding: 24px 0px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.16);
+}
+
+.slidesWrapper > div {
+    padding: 0 12px;
 }
 
 .slide {

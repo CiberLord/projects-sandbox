@@ -13,15 +13,16 @@ export const createDragGestureStateManager = (options: Required<IDragGestureOpti
         delta: { x: 0, y: 0 },
         direction: { x: 0, y: 0 },
         currentPosition: { x: 0, y: 0 },
+        prevPosition: { x: 0, y: 0 },
         startPosition: { x: 0, y: 0 },
     };
 
     const getDragEvent = (event: TouchEvent): IDragGestureEvent => {
-        const touchDir = state.currentPosition.x - state.startPosition.x;
+        const currentHorizontalDirection = state.currentPosition.x - state.startPosition.x;
 
-        if (options.boundaryTension.isStart() && touchDir > 0) {
+        if (options.boundaryTension.isStart() && currentHorizontalDirection > 0) {
             state.delta.x = state.delta.x * options.boundaryTension.easing;
-        } else if (options.boundaryTension.isEnd() && touchDir < 0) {
+        } else if (options.boundaryTension.isEnd() && currentHorizontalDirection < 0) {
             state.delta.x = state.delta.x * options.boundaryTension.easing;
         }
 
@@ -31,6 +32,7 @@ export const createDragGestureStateManager = (options: Required<IDragGestureOpti
             isFirst: state.isFirst,
             delta: state.delta,
             startPosition: state.startPosition,
+            prevPosition: state.prevPosition,
             currentPosition: state.currentPosition,
         };
     };
@@ -73,6 +75,7 @@ export const createDragGestureStateManager = (options: Required<IDragGestureOpti
         state.delta = { x: 0, y: 0 };
         state.direction = { x: 0, y: 0 };
         state.currentPosition = { x: 0, y: 0 };
+        state.prevPosition = { x: 0, y: 0 };
         state.startPosition = { x: 0, y: 0 };
     };
 

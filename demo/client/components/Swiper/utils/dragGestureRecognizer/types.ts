@@ -9,6 +9,7 @@ export interface IDragGestureState {
     endTime: number;
     delta: IVector2;
     direction: IVector2;
+    prevPosition: IVector2;
     currentPosition: IVector2;
     startPosition: IVector2;
 }
@@ -17,6 +18,7 @@ export interface IDragGestureEvent {
     isFirst: boolean;
     delta: IVector2;
     startPosition: IVector2;
+    prevPosition: IVector2;
     currentPosition: IVector2;
     direction: IVector2;
     event: TouchEvent;
@@ -35,7 +37,7 @@ export interface IDragGestureOptions {
     };
     axis?: DragGestureAxis;
     boundaryTension?: {
-        easing: number;
+        easing?: number;
         isStart: () => boolean;
         isEnd: () => boolean;
     };

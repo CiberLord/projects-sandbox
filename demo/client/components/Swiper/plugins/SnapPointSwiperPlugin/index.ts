@@ -1,6 +1,6 @@
 //ssh -i .ssh/id_yandex_cloud yuldash@62.84.121.167
 
-import { AnimationResult, Controller, SpringValue } from '@react-spring/web';
+import { Controller } from '@react-spring/web';
 
 import {
     ISwiperPluginBaseConfig,
@@ -29,7 +29,6 @@ export class SnapPointSwiperPlugin extends RootSwiperPlugin<ISnapPointSwiperPlug
     centered?: boolean;
     snapPoints: number[];
     animateController: Controller<ISpringValue>;
-    renderCallback: (event: AnimationResult<SpringValue<ISpringValue>>) => void;
 
     gestureRecognizer: IDragGestureRecognizer;
 

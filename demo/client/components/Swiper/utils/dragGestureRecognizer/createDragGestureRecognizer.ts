@@ -9,7 +9,7 @@ import { createDragGestureStateManager } from './createDragGestureStateManager';
 const INITIAL_SWIPE_DISTANCE = 30;
 const INITIAL_SWIPE_THRESHOLD = 250;
 const INITIAL_AXIS_VALUE = DragGestureAxis.X;
-const BOUNDARY_TENSION_EASING = 0.28;
+const BOUNDARY_TENSION_EASING = 0.31;
 
 export const createDragGestureRecognizer = (
     config: IDragGestureConstructor,
@@ -41,6 +41,8 @@ export const createDragGestureRecognizer = (
         state.startTime = performance.now();
         state.startPosition.x = event.touches[0].clientX;
         state.startPosition.y = event.touches[0].clientY;
+        state.prevPosition.x = state.currentPosition.x;
+        state.prevPosition.y = state.currentPosition.y;
         state.currentPosition.x = event.touches[0].clientX;
         state.currentPosition.y = event.touches[0].clientY;
 
@@ -50,6 +52,8 @@ export const createDragGestureRecognizer = (
     const touchMoveListener = (event: TouchEvent) => {
         state.delta.x = event.touches[0].clientX - state.startPosition.x;
         state.delta.y = event.touches[0].clientY - state.startPosition.y;
+        state.prevPosition.x = state.currentPosition.x;
+        state.prevPosition.y = state.currentPosition.y;
         state.currentPosition.x = event.touches[0].clientX;
         state.currentPosition.y = event.touches[0].clientY;
 
