@@ -82,7 +82,60 @@ export const Public: React.FC<PropsWithChildren> = () => {
                         </Slide>
                     </Swiper>
                 </div>
-                <div className={styles.block}></div>
+                <div className={styles.block}>
+                    <Swiper
+                        plugin={SnapPointSwiperPlugin}
+                        className={styles.slidesWrapper}>
+                        <Slide
+                            key={'1'}
+                            className={styles.slide}>
+                            <h1>title</h1>
+                            <button
+                                onClick={() => {
+                                    console.log('hello world');
+                                }}
+                                className={styles.button}>
+                                click
+                            </button>
+                        </Slide>
+                        <Slide
+                            key={'2'}
+                            className={styles.slide}>
+                            <h1>title</h1>
+                            <button
+                                onClick={() => {
+                                    console.log('hello world');
+                                }}
+                                className={styles.button}>
+                                click
+                            </button>
+                        </Slide>
+                        <Slide
+                            key={'3'}
+                            className={styles.slide}>
+                            <h1>title</h1>
+                            <button
+                                onClick={() => {
+                                    console.log('hello world');
+                                }}
+                                className={styles.button}>
+                                click
+                            </button>
+                        </Slide>
+                        <Slide
+                            key={'4'}
+                            className={styles.slide}>
+                            <h1>title</h1>
+                            <button
+                                onClick={() => {
+                                    console.log('hello world');
+                                }}
+                                className={styles.button}>
+                                click
+                            </button>
+                        </Slide>
+                    </Swiper>
+                </div>
                 <div className={styles.block}></div>
                 <div className={styles.block}></div>
                 <div className={styles.block}></div>

@@ -16,15 +16,25 @@
 .slidesTrack {
     position: relative;
     display: flex;
-    width: auto;
+    width: 1px;
     touch-action: pan-y;
     box-sizing: border-box;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform;
 }
 
 .slide {
     flex-shrink: 0;
     backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    -webkit-backface-visibility: hidden;
+    --webkit-transform: translateZ(0px);
+    transform: translateZ(0px);
     box-sizing: border-box;
 }
 
