@@ -1,0 +1,1 @@
+export { SnapSliderModule } from './SnapPointFactory';
