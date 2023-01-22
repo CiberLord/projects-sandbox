@@ -30,7 +30,6 @@ export const Public: React.FC<PropsWithChildren> = () => {
                 <div className={styles.block}>
                     <Slider
                         module={SnapSliderModule}
-                        views={Views}
                         className={styles.slidesWrapper}>
                         <SliderSlide
                             key={'1'}
