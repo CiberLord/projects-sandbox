@@ -1,23 +1,24 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ISliderBaseEntity } from '../types';
 
-export const useArrows = ({ sliderInstance }: ISliderBaseEntity) => {
-    const [showPrevButton, setShowPrevButton] = useState<boolean>(sliderInstance.hasAllowPrev);
-    const [showNextButton, setShowNextButton] = useState<boolean>(sliderInstance.hasAllowNext);
+export const useArrows = ({ sliderEntity }: ISliderBaseEntity) => {
+    const [showPrevButton, setShowPrevButton] = useState<boolean>(sliderEntity.hasAllowPrev);
+    const [showNextButton, setShowNextButton] = useState<boolean>(sliderEntity.hasAllowNext);
 
     const handlePrev = useCallback(() => {
-        sliderInstance.toPrev(({ hasAllowPrev }) => {
-            setShowNextButton(true);
-            setShowPrevButton(hasAllowPrev);
-        });
-    }, [sliderInstance]);
+        sliderEntity.toPrev();
+    }, [sliderEntity]);
 
     const handleNext = useCallback(() => {
-        sliderInstance.toNext(({ hasAllowNext }) => {
-            setShowPrevButton(true);
+        sliderEntity.toNext();
+    }, [sliderEntity]);
+
+    useEffect(() => {
+        sliderEntity.useChange(({ hasAllowNext, hasAllowPrev }) => {
+            setShowPrevButton(hasAllowPrev);
             setShowNextButton(hasAllowNext);
         });
-    }, [sliderInstance]);
+    }, [sliderEntity]);
 
     return {
         showPrevButton,

@@ -18,12 +18,13 @@ export const createDragGestureStateManager = (options: Required<IDragGestureOpti
     };
 
     const getDragEvent = (event: TouchEvent): IDragGestureEvent => {
+        const easing = options.boundaryTension?.easing || 0.2;
         const currentHorizontalDirection = state.currentPosition.x - state.startPosition.x;
 
         if (options.boundaryTension.isStart() && currentHorizontalDirection > 0) {
-            state.delta.x = state.delta.x * options.boundaryTension.easing;
+            state.delta.x = state.delta.x * easing;
         } else if (options.boundaryTension.isEnd() && currentHorizontalDirection < 0) {
-            state.delta.x = state.delta.x * options.boundaryTension.easing;
+            state.delta.x = state.delta.x * easing;
         }
 
         return {

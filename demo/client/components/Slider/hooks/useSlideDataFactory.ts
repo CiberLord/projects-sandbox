@@ -2,10 +2,10 @@ import { ISliderBaseEntity } from '../types';
 import { ISlideDataContext } from '../contexts/types';
 import { useMemo } from 'react';
 
-export const useSlideDataFactory = ({ sliderInstance }: ISliderBaseEntity): ISlideDataContext => {
+export const useSlideDataFactory = ({ sliderEntity }: ISliderBaseEntity): ISlideDataContext => {
     return useMemo(() => {
         return {
-            slideClassName: sliderInstance.getClassNames().item,
+            slideClassName: sliderEntity.getClassNames().item,
         };
-    }, [sliderInstance]);
+    }, [sliderEntity]);
 };

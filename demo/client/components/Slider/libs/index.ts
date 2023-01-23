@@ -1,4 +1,5 @@
 export * from './dragGestureRecognizer';
-export * from './getSnapPoints';
 export * from './getInToRange';
-export * from './calcSnapPointIndex';
+export * from './calcSnapPointsUtils/getSnapPointsToSlides';
+export * from './calcSnapPointsUtils/getSnapPointsAccordingScrollWidth';
+export * from './calcSnapPointsUtils/getCurrentSnapPointSlide';

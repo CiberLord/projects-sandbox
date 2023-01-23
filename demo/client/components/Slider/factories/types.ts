@@ -8,6 +8,13 @@ export interface ISliderDomRefs {
     slides: RefObject<HTMLDivElement[]>;
 }
 
+export interface ISliderModuleBaseContext {
+    hasAllowPrev: boolean;
+    hasAllowNext: boolean;
+    currentSlide: number;
+    snapPoints: number[];
+}
+
 export interface IClassNames {
     container?: string;
     wrapper?: string;
@@ -21,6 +28,8 @@ export interface ISliderModuleChangeEvent {
     currentSlide: number;
 }
 
+export type IGetClassNamesAction = () => IClassNames;
+
 export type ChangeHandler = (event: ISliderModuleChangeEvent) => void;
 
 export interface ISliderModuleBaseOptions {
@@ -28,12 +37,18 @@ export interface ISliderModuleBaseOptions {
     onChange?: ChangeHandler;
 }
 
-export interface ISliderModuleConfig extends ISliderModuleBaseOptions {
+export type ISetSlideAction = (currentSlide: number, onChange?: ChangeHandler) => void;
+
+export type IUpdateSlideAction = (onChange?: ChangeHandler) => void;
+
+export type IUseChangeListener = (onChange: ChangeHandler) => void;
+
+export interface ISliderModuleOptions extends ISliderModuleBaseOptions {
     domRefs: ISliderDomRefs;
 }
 
 export interface ISliderModuleEntity {
-    getClassNames: () => IClassNames;
+    getClassNames: IGetClassNamesAction;
 
     create: () => void;
     destroy: () => void;
@@ -41,11 +56,13 @@ export interface ISliderModuleEntity {
     hasAllowPrev: boolean;
     hasAllowNext: boolean;
 
-    setSlide: (currentSlide: number, onChange?: ChangeHandler) => void;
-    toPrev: (onChange?: ChangeHandler) => void;
-    toNext: (onChange?: ChangeHandler) => void;
+    useChange: IUseChangeListener;
+
+    setSlide: ISetSlideAction;
+    toPrev: IUpdateSlideAction;
+    toNext: IUpdateSlideAction;
 }
 
-export type ISliderModule<Config = EmptyObject, Entity = EmptyObject> = (
-    config: ISliderModuleConfig & Config,
+export type ISliderModule<Options = EmptyObject, Entity = EmptyObject> = (
+    options: ISliderModuleOptions & Options,
 ) => ISliderModuleEntity & Entity;

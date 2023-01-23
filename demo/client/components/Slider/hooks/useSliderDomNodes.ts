@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { ISliderDomRefs } from '../modules/types';
+import { ISliderDomRefs } from '../factories/types';
 
 export const useSliderDomNodes = (): ISliderDomRefs => {
     const container = useRef<HTMLDivElement>(null);

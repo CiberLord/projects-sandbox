@@ -6,12 +6,12 @@ import { ISliderModuleBaseOptions } from '../factories/types';
 import { SliderSlidesCollectorContext } from '../contexts/SliderSlidesCollector';
 import { SlideDataContext } from '../contexts/SlideData';
 import { useSliderFactory } from '../hooks/useSliderFactory';
-import { SliderArrowsFactory } from '../SliderArrowsFactory';
+import { SliderArrows } from '../SliderArrows';
 
 function SliderViewFactory<Config extends ISliderModuleBaseOptions>({
     module,
     arrows: Arrows,
-    views,
+    pagination: Pagination,
     onChange,
     className,
     trackClassName,
@@ -20,15 +20,15 @@ function SliderViewFactory<Config extends ISliderModuleBaseOptions>({
     currentSlide: defaultCurrentSlide,
     ...moduleProps
 }: PropsWithChildren<ISliderViewFactoryProps<Config>>) {
-    const { domRefs, currentSlide, slidesCount, sliderInstance, slideData, slidesCollector } =
+    const { domRefs, currentSlide, slidesCount, sliderEntity, slideData, slidesCollector } =
         useSliderFactory({
             module,
             currentSlide: defaultCurrentSlide,
             onChange,
             ...moduleProps,
-        } as unknown as ISliderOptions<Config>);
+        } as ISliderOptions<Config>);
 
-    const classNames = sliderInstance.getClassNames();
+    const classNames = sliderEntity.getClassNames();
 
     return (
         <SliderSlidesCollectorContext.Provider value={slidesCollector}>
@@ -46,24 +46,17 @@ function SliderViewFactory<Config extends ISliderModuleBaseOptions>({
                         </SlideDataContext.Provider>
                     </div>
                 </div>
-                {views && (
-                    <>
-                        {views.map((View, index) => {
-                            return (
-                                <View
-                                    key={index}
-                                    currentSlide={currentSlide}
-                                    slidesCount={slidesCount}
-                                    sliderInstance={sliderInstance}
-                                />
-                            );
-                        })}
-                    </>
+                {Pagination && (
+                    <Pagination
+                        currentSlide={currentSlide}
+                        slidesCount={slidesCount}
+                        sliderEntity={sliderEntity}
+                    />
                 )}
                 {Arrows && (
-                    <SliderArrowsFactory
+                    <SliderArrows
                         component={Arrows}
-                        sliderInstance={sliderInstance}
+                        sliderEntity={sliderEntity}
                     />
                 )}
             </div>

@@ -7,7 +7,6 @@
 
 .slidesList {
     position: relative;
-    overflow-x: hidden;
     width: 100%;
     box-sizing: border-box;
     touch-action: pan-y;

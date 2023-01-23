@@ -15,8 +15,10 @@ export const useSliderFactory = <Config extends ISliderModuleBaseOptions>({
     const { slidesCollector, slidesCount } = useSlidesCollectorFactory(domRefs.slides);
     const [currentSlide, setCurrentSlide] = useState<number>(initialCurrentSlide || 0);
 
-    const sliderInstance = useMemo(
+    const sliderEntity = useMemo(
         () =>
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             Module({
                 ...moduleProps,
                 domRefs,
@@ -29,15 +31,15 @@ export const useSliderFactory = <Config extends ISliderModuleBaseOptions>({
         [],
     );
 
-    const slideData = useSlideDataFactory({ sliderInstance });
+    const slideData = useSlideDataFactory({ sliderEntity });
 
     useEffect(() => {
-        sliderInstance.create();
+        sliderEntity.create();
 
         return () => {
-            sliderInstance.destroy();
+            sliderEntity.destroy();
         };
     }, [slidesCount]);
 
-    return { domRefs, slidesCount, currentSlide, sliderInstance, slideData, slidesCollector };
+    return { domRefs, slidesCount, currentSlide, sliderEntity, slideData, slidesCollector };
 };

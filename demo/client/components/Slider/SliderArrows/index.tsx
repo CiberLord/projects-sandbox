@@ -3,18 +3,18 @@ import React, { PropsWithChildren } from 'react';
 import { IArrowsProps, ISliderBaseEntity } from '../types';
 import { useArrows } from '../hooks/useArrows';
 
-interface ISliderArrowsFactoryProps extends ISliderBaseEntity {
+interface ISliderArrowsProps extends ISliderBaseEntity {
     className?: string;
     component: React.ComponentType<IArrowsProps>;
 }
 
-const SliderArrowsFactory: React.FC<PropsWithChildren<ISliderArrowsFactoryProps>> = ({
+const SliderArrows: React.FC<PropsWithChildren<ISliderArrowsProps>> = ({
     className,
     component: ArrowsComponent,
-    sliderInstance,
+    sliderEntity,
 }) => {
     const { showNextButton, showPrevButton, handleNext, handlePrev } = useArrows({
-        sliderInstance,
+        sliderEntity,
     });
 
     return (
@@ -28,4 +28,4 @@ const SliderArrowsFactory: React.FC<PropsWithChildren<ISliderArrowsFactoryProps>
     );
 };
 
-export { SliderArrowsFactory };
+export { SliderArrows };
