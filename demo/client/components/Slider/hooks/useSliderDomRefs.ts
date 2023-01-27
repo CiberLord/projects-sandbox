@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { ISliderDomRefs } from '../factories/types';
 
-export const useSliderDomNodes = (): ISliderDomRefs => {
+export const useSliderDomRefs = (): ISliderDomRefs => {
     const container = useRef<HTMLDivElement>(null);
     const wrapper = useRef<HTMLDivElement>(null);
     const track = useRef<HTMLDivElement>(null);

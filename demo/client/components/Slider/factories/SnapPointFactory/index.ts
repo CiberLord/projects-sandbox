@@ -67,8 +67,6 @@ const SnapSliderModule = (options: IOptions): ISliderModuleEntity => {
                 ctx.hasAllowPrev = ctx.currentSlide > 0;
                 ctx.hasAllowNext = ctx.currentSlide < ctx.snapPoints.length - 1;
 
-                console.log('leng = ', ctx.snapPoints.length, ', curr = ', ctx.currentSlide);
-
                 const changeEvent = {
                     currentSlide: ctx.currentSlide,
                     hasAllowPrev: ctx.hasAllowPrev,

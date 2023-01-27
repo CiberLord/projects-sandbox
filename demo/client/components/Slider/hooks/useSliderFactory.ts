@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ISliderEntity, ISliderOptions } from '../types';
-import { useSliderDomNodes } from './useSliderDomNodes';
+import { useSliderDomRefs } from './useSliderDomRefs';
 import { ISliderModuleBaseOptions } from '../factories/types';
 import { useSlidesCollectorFactory } from './useSlidesCollectorFactory';
 import { useSlideDataFactory } from './useSlideDataFactory';
@@ -11,7 +11,7 @@ export const useSliderFactory = <Config extends ISliderModuleBaseOptions>({
     onChange,
     ...moduleProps
 }: ISliderOptions<Config>): ISliderEntity => {
-    const domRefs = useSliderDomNodes();
+    const domRefs = useSliderDomRefs();
     const { slidesCollector, slidesCount } = useSlidesCollectorFactory(domRefs.slides);
     const [currentSlide, setCurrentSlide] = useState<number>(initialCurrentSlide || 0);
 
