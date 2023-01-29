@@ -1,19 +1,11 @@
-export const getCurrentSnapPointSlide = (snapPoints: number[], touchPosition: number) => {
-    if (touchPosition < snapPoints[0]) {
-        return 0;
-    }
+import { getBottomSnapSlideByScrollPosition } from './helpers';
 
-    if (touchPosition > snapPoints[snapPoints.length - 1]) {
-        return snapPoints.length - 1;
-    }
+export const getCurrentSnapPointSlide = (snapPoints: number[], scrollPosition: number) => {
+    const bottomSlide = getBottomSnapSlideByScrollPosition(snapPoints, scrollPosition);
 
-    const bottomSlide = snapPoints.findIndex((snapPosition, index) => {
-        return touchPosition > snapPosition && touchPosition < snapPoints[index + 1];
-    });
-
-    const topSlide = bottomSlide + 1;
+    const topSlide = Math.min(snapPoints.length - 1, bottomSlide + 1);
 
     const triggerPosition = (snapPoints[bottomSlide] + snapPoints[topSlide]) / 2;
 
-    return touchPosition < triggerPosition ? bottomSlide : topSlide;
+    return scrollPosition < triggerPosition ? bottomSlide : topSlide;
 };

@@ -20,7 +20,7 @@ export const calcSnapPointsAccordingScrollWidth = (
     const snapPoints: number[] = [];
 
     slidesPositions.forEach((currentPosition, index) => {
-        // получаем конечную границу вьюпорта от позиции текущего слайда
+        // получаем конечную границу контейнера от позиции текущего слайда
         const viewportEndPosition = currentPosition + viewportSize;
 
         // проверяется можно ли скроллить дальше, если да, то ставим текущую позицию слайда
@@ -28,7 +28,7 @@ export const calcSnapPointsAccordingScrollWidth = (
             return snapPoints.push(currentPosition);
         }
 
-        // смещение границы вьюпорта относительно ширины скролла
+        // смещение границы контейнера относительно ширины скролла
         const offset = viewportEndPosition - scrollSize;
 
         const position = Math.max(currentPosition - offset, 0);
@@ -37,4 +37,21 @@ export const calcSnapPointsAccordingScrollWidth = (
     });
 
     return snapPoints;
+};
+
+export const getBottomSnapSlideByScrollPosition = (
+    snapPoints: number[],
+    scrollPosition: number,
+) => {
+    if (scrollPosition < snapPoints[0]) {
+        return 0;
+    }
+
+    if (scrollPosition > snapPoints[snapPoints.length - 1]) {
+        return snapPoints.length - 1;
+    }
+
+    return snapPoints.findIndex((snapPosition, index) => {
+        return scrollPosition > snapPosition && scrollPosition < snapPoints[index + 1];
+    });
 };

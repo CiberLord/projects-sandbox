@@ -1,12 +1,10 @@
-import { getPaddings, calcSnapPointsAccordingScrollWidth } from './helpers';
+import { calcSnapPointsAccordingScrollWidth, getPaddings } from './helpers';
 import uniq from 'lodash/uniq';
 
 interface IOptions {
     container: HTMLDivElement;
-    wrapper: HTMLDivElement;
     slidesTrack: HTMLDivElement;
     slides: HTMLDivElement[];
-    centered?: boolean;
 }
 
 /*
@@ -15,24 +13,19 @@ interface IOptions {
 */
 export const getSnapPointsAccordingScrollWidth = ({
     container,
-    wrapper,
     slidesTrack,
     slides,
 }: IOptions): number[] => {
     const containerPaddings = getPaddings(container);
-    const wrapperPaddings = getPaddings(wrapper);
 
-    const paddingsOffset = [
-        containerPaddings.left,
-        containerPaddings.right,
-        wrapperPaddings.left,
-        wrapperPaddings.right,
-    ].reduce((acc, value) => {
-        return acc + value;
-    }, 0);
+    const paddingsOffset = [containerPaddings.left, containerPaddings.right].reduce(
+        (acc, value) => {
+            return acc + value;
+        },
+        0,
+    );
 
-    const viewportWidth = container.getBoundingClientRect().width;
-    const viewportInnerWidth = viewportWidth - paddingsOffset;
+    const viewportInnerWidth = container.getBoundingClientRect().width - paddingsOffset;
 
     const trackScrollWidth = slidesTrack.scrollWidth;
 

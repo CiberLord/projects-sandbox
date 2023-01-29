@@ -6,6 +6,8 @@ import { IDragGestureRecognizer } from '../../libs/dragGestureRecognizer/types';
 import {
     createDragGestureRecognizer,
     getCurrentSnapPointSlide,
+    IDirection,
+    getUpdatedPositionByArrowDirection,
     getSnapPointsAccordingScrollWidth,
     getSnapPointsToSlides,
     getInToRange,
@@ -17,6 +19,7 @@ interface ISnapSliderModuleOptions {
 
 interface ISnapPointSliderState {
     currentSlide: number;
+    scrollPosition: number;
     hasAllowPrev: boolean;
     hasAllowNext: boolean;
     snapPoints: number[];
@@ -31,9 +34,9 @@ interface IOptions extends ISnapSliderModuleOptions, ISliderModuleOptions {}
 const SnapSliderModule = (options: IOptions): ISliderModuleEntity => {
     const { domRefs } = options;
 
-    const ctx: ISnapPointSliderState = {
+    const context: ISnapPointSliderState = {
         currentSlide: options.currentSlide || 0,
-
+        scrollPosition: 0,
         changeListeners: options.onChange ? [options.onChange] : [],
         hasAllowPrev: false,
         hasAllowNext: true,
@@ -47,6 +50,7 @@ const SnapSliderModule = (options: IOptions): ISliderModuleEntity => {
                 (
                     domRefs.track.current as HTMLDivElement
                 ).style.transform = `translate3d(${event.value.x}px, 0px, 0px)`;
+                context.scrollPosition = event.value.x;
             },
         }),
 
@@ -54,26 +58,26 @@ const SnapSliderModule = (options: IOptions): ISliderModuleEntity => {
     };
 
     const updateSlide = (index: number, onChange?: ChangeHandler) => {
-        const prevIndex = ctx.currentSlide;
-        ctx.currentSlide = getInToRange(index, 0, ctx.snapPoints.length);
+        const prevIndex = context.currentSlide;
+        context.currentSlide = getInToRange(index, 0, context.snapPoints.length);
 
-        ctx.animation.start({
-            x: ctx.transformPoints[ctx.currentSlide],
+        context.animation.start({
+            x: context.transformPoints[context.currentSlide],
             onRest: () => {
-                if (prevIndex === ctx.currentSlide) {
+                if (prevIndex === context.currentSlide) {
                     return;
                 }
 
-                ctx.hasAllowPrev = ctx.currentSlide > 0;
-                ctx.hasAllowNext = ctx.currentSlide < ctx.snapPoints.length - 1;
+                context.hasAllowPrev = context.currentSlide > 0;
+                context.hasAllowNext = context.currentSlide < context.snapPoints.length - 1;
 
                 const changeEvent = {
-                    currentSlide: ctx.currentSlide,
-                    hasAllowPrev: ctx.hasAllowPrev,
-                    hasAllowNext: ctx.hasAllowNext,
+                    currentSlide: context.currentSlide,
+                    hasAllowPrev: context.hasAllowPrev,
+                    hasAllowNext: context.hasAllowNext,
                 };
 
-                ctx.changeListeners.forEach((listener) => listener(changeEvent));
+                context.changeListeners.forEach((listener) => listener(changeEvent));
                 options.onChange?.(changeEvent);
             },
             config: {
@@ -84,8 +88,8 @@ const SnapSliderModule = (options: IOptions): ISliderModuleEntity => {
     };
 
     return {
-        hasAllowPrev: ctx.hasAllowPrev,
-        hasAllowNext: ctx.hasAllowNext,
+        hasAllowPrev: context.hasAllowPrev,
+        hasAllowNext: context.hasAllowNext,
 
         create: () => {
             const container = domRefs.container.current as HTMLDivElement;
@@ -94,28 +98,27 @@ const SnapSliderModule = (options: IOptions): ISliderModuleEntity => {
             const slides = domRefs.slides.current as HTMLDivElement[];
 
             if (options.centered) {
-                ctx.snapPoints = getSnapPointsToSlides({
+                context.snapPoints = getSnapPointsToSlides({
                     container,
                     slides,
                     centered: options.centered,
                 });
             } else {
-                ctx.snapPoints = getSnapPointsAccordingScrollWidth({
+                context.snapPoints = getSnapPointsAccordingScrollWidth({
                     container,
-                    wrapper,
                     slidesTrack,
                     slides,
                 });
             }
 
-            ctx.transformPoints = ctx.snapPoints.map((point) => -1 * point);
+            context.transformPoints = context.snapPoints.map((point) => -1 * point);
 
-            ctx.gestureRecognizer = createDragGestureRecognizer({
+            context.gestureRecognizer = createDragGestureRecognizer({
                 target: wrapper,
                 onDrag: ({ delta }) => {
-                    const updatedPosition = ctx.transformPoints[ctx.currentSlide] + delta.x;
+                    const updatedPosition = context.transformPoints[context.currentSlide] + delta.x;
 
-                    ctx.animation.start({
+                    context.animation.start({
                         x: updatedPosition,
                         config: {
                             friction: 50,
@@ -124,37 +127,37 @@ const SnapSliderModule = (options: IOptions): ISliderModuleEntity => {
                     });
                 },
                 onDragEnd: ({ delta, direction }) => {
-                    const updatedPosition = ctx.transformPoints[ctx.currentSlide] + delta.x;
+                    const updatedPosition = context.transformPoints[context.currentSlide] + delta.x;
 
                     const targetSlide = getCurrentSnapPointSlide(
-                        ctx.snapPoints,
+                        context.snapPoints,
                         -1 * updatedPosition,
                     );
 
-                    const shouldChanged = targetSlide !== ctx.currentSlide;
+                    const shouldChanged = targetSlide !== context.currentSlide;
 
                     const updatedSlide = shouldChanged
-                        ? ctx.currentSlide - direction.x
-                        : ctx.currentSlide;
+                        ? context.currentSlide - direction.x
+                        : context.currentSlide;
 
                     updateSlide(updatedSlide);
                 },
                 onSwipe: ({ direction }) => {
-                    updateSlide(ctx.currentSlide - direction.x);
+                    updateSlide(context.currentSlide - direction.x);
                 },
                 options: {
                     boundaryTension: {
-                        isStart: () => ctx.currentSlide === 0,
-                        isEnd: () => ctx.currentSlide === ctx.snapPoints.length - 1,
+                        isStart: () => context.currentSlide === 0,
+                        isEnd: () => context.currentSlide === context.snapPoints.length - 1,
                     },
                 },
             });
 
-            updateSlide(ctx.currentSlide);
+            updateSlide(context.currentSlide);
         },
 
         destroy: () => {
-            ctx.gestureRecognizer?.destroy();
+            context.gestureRecognizer?.destroy();
         },
 
         getClassNames: () => {
@@ -167,7 +170,7 @@ const SnapSliderModule = (options: IOptions): ISliderModuleEntity => {
         },
 
         useChange: (listener) => {
-            ctx.changeListeners.push(listener);
+            context.changeListeners.push(listener);
         },
 
         setSlide: (index, onChange) => {
@@ -175,11 +178,29 @@ const SnapSliderModule = (options: IOptions): ISliderModuleEntity => {
         },
 
         toNext: (onChange) => {
-            updateSlide(ctx.currentSlide + 1, onChange);
+            updateSlide(
+                getUpdatedPositionByArrowDirection({
+                    container: domRefs.container.current as HTMLDivElement,
+                    slidesTrack: domRefs.track.current as HTMLDivElement,
+                    snapPoints: context.snapPoints,
+                    currentScrollPosition: context.scrollPosition,
+                    direction: IDirection.RIGHT,
+                }),
+                onChange,
+            );
         },
 
         toPrev: (onChange) => {
-            updateSlide(ctx.currentSlide - 1, onChange);
+            updateSlide(
+                getUpdatedPositionByArrowDirection({
+                    container: domRefs.container.current as HTMLDivElement,
+                    slidesTrack: domRefs.track.current as HTMLDivElement,
+                    snapPoints: context.snapPoints,
+                    currentScrollPosition: 9,
+                    direction: IDirection.LEFT,
+                }),
+                onChange,
+            );
         },
     };
 };

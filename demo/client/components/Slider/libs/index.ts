@@ -3,3 +3,4 @@ export * from './getInToRange';
 export * from './snapPointsUtils/getSnapPointsToSlides';
 export * from './snapPointsUtils/getSnapPointsAccordingScrollWidth';
 export * from './snapPointsUtils/getCurrentSnapPointSlide';
+export * from './snapPointsUtils/getUpdatedPositionByArrowDirection';

@@ -86,8 +86,8 @@ export const createDragGestureRecognizer = (
         if (shouldDispatchListener()) {
             event.preventDefault();
 
-            if (shouldSwipe()) {
-                config.onSwipe?.(getDragEvent(event));
+            if (shouldSwipe() && config.onSwipe) {
+                config.onSwipe(getDragEvent(event));
             } else {
                 config.onDragEnd?.(getDragEvent(event));
             }
