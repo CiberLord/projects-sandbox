@@ -8,19 +8,17 @@ import {
     IScrollToOptions,
     ISnapScrollableViewInitializerOptions,
 } from './types';
-import { ScrollListeners } from '../scrollableContainerFactory/types';
-import { getBottomSnapSlideByScrollPosition, getPaddings } from '../snapPointsUtils/helpers';
+import { getBottomSnapSlideByScrollPosition, getMaxScrollWidth } from '../snapPointsUtils/helpers';
 import { IDragGestureRecognizer } from '../dragGestureRecognizer/types';
 import { createDragGestureRecognizer } from '../dragGestureRecognizer';
 import { getCurrentSnapPointSlide } from '../snapPointsUtils/getCurrentSnapPointSlide';
 import { getInToRange } from '../getInToRange';
 
-export interface IInternalState {
+export interface IValues {
     scrollX: number;
     currentSnapPoint: number;
     startEdge: number;
     endEdge: number;
-    snapPoints: number[];
 }
 
 const SCROLL_ANIMATION_CONFIG = {
@@ -38,15 +36,23 @@ const SCROLL_END_ANIMATION_CONFIG = {
 };
 
 class SnapScrollableViewInitializer {
-    state: IInternalState;
+    private values: IValues;
 
-    gesturesController: IDragGestureRecognizer;
+    private readonly snapPoints: number[];
 
-    animationController: AnimationController<{ x: number }>;
+    private safeEdges: boolean;
 
-    handlersController: HandlersController<typeof ScrollHandlerTypes, IScrollEvent>;
+    private gesturesController: IDragGestureRecognizer;
+
+    private animationController: AnimationController<{ x: number }>;
+
+    private handlersController: HandlersController<typeof ScrollHandlerTypes, IScrollEvent>;
 
     constructor(options: ISnapScrollableViewInitializerOptions) {
+        this.snapPoints = options.snapPoints;
+
+        this.safeEdges = !!options.safeEdges;
+
         this.handlersController = new HandlersController({
             types: ScrollHandlerTypes,
         });
@@ -66,16 +72,15 @@ class SnapScrollableViewInitializer {
     }
 
     private initializeValues = (options: ISnapScrollableViewInitializerOptions) => {
-        const { left, right } = getPaddings(options.containerNode);
+        const maxScrollWidth = getMaxScrollWidth(options.containerNode, options.scrollableNode);
 
-        this.state = {
+        const lasSnapPointPosition = options.snapPoints[options.snapPoints.length - 1];
+
+        this.values = {
             scrollX: 0,
             currentSnapPoint: 0,
-            snapPoints: options.snapPoints,
             startEdge: options.snapPoints[0],
-            endEdge:
-                options.scrollableNode.scrollWidth -
-                (options.containerNode.getBoundingClientRect().width - (left + right)),
+            endEdge: options.safeEdges ? lasSnapPointPosition : maxScrollWidth,
         };
     };
 
@@ -84,29 +89,32 @@ class SnapScrollableViewInitializer {
             target: options.containerNode,
             onDragStart: () => {
                 this.handlersController.dispatchHandlers(
-                    ScrollListeners.SCROLL_START,
+                    ScrollHandlerTypes.SCROLL_START,
                     this.getEvent(),
                 );
             },
             onDrag: ({ delta }) => {
-                this.state.scrollX = this.getScrollX(delta.x);
+                this.values.scrollX = this.getScrollX(delta.x);
 
                 this.animationController.start({
-                    x: this.state.scrollX,
+                    x: this.values.scrollX,
                     config: SCROLL_ANIMATION_CONFIG,
                 });
 
-                this.handlersController.dispatchHandlers(ScrollListeners.SCROLL, this.getEvent());
+                this.handlersController.dispatchHandlers(
+                    ScrollHandlerTypes.SCROLL,
+                    this.getEvent(),
+                );
             },
             onDragEnd: ({ delta }) => {
-                this.state.scrollX = this.getScrollX(delta.x);
-                this.scrollTo({ x: this.state.scrollX, sticky: 'nearest' });
+                this.values.scrollX = this.getScrollX(delta.x);
+                this.scrollTo({ x: this.values.scrollX, sticky: 'nearest' });
             },
             onSwipe: ({ direction }) => {
-                this.state.currentSnapPoint = getInToRange(
-                    this.state.currentSnapPoint - direction.x,
+                this.values.currentSnapPoint = getInToRange(
+                    this.values.currentSnapPoint - direction.x,
                     0,
-                    this.state.snapPoints.length,
+                    this.snapPoints.length,
                 );
 
                 this.scrollTo({
@@ -123,65 +131,72 @@ class SnapScrollableViewInitializer {
     private getScrollX = (touchX: number) => {
         let scrollX = this.getSnapPointScrollPosition() - touchX;
 
-        if (scrollX < this.state.startEdge) {
+        if (scrollX < this.values.startEdge) {
             scrollX = Math.max(-MAX_EDGE_OFFSET, EDGE_TENSION * scrollX);
         }
 
-        if (scrollX > this.state.endEdge) {
-            const offset = scrollX - this.state.endEdge;
+        if (scrollX > this.values.endEdge) {
+            const offset = scrollX - this.values.endEdge;
 
-            scrollX = this.state.endEdge + Math.min(MAX_EDGE_OFFSET, EDGE_TENSION * offset);
+            scrollX = this.values.endEdge + Math.min(MAX_EDGE_OFFSET, EDGE_TENSION * offset);
         }
 
         return scrollX;
     };
 
     private getSnapPointScrollPosition = () => {
-        return this.state.snapPoints[this.state.currentSnapPoint];
+        return this.snapPoints[this.values.currentSnapPoint];
     };
 
     private getEvent = () => {
         return {
-            scrollX: this.state.scrollX,
-            currentSnapPoint: this.state.currentSnapPoint,
+            scrollX: this.values.scrollX,
+            currentSnapPoint: this.values.currentSnapPoint,
         };
     };
 
     private onAnimationEnd = () => {
-        this.handlersController.dispatchHandlers(ScrollListeners.SCROLL_END, this.getEvent());
+        this.handlersController.dispatchHandlers(ScrollHandlerTypes.SCROLL_END, this.getEvent());
+    };
+
+    public getScrollXStart = () => {
+        return this.values.startEdge;
+    };
+
+    public getMaxScrollWidth = () => {
+        return this.values.endEdge;
     };
 
     public scrollTo = ({ x, sticky }: IScrollToOptions) => {
         if (sticky === 'nearest') {
-            this.state.currentSnapPoint = getCurrentSnapPointSlide(this.state.snapPoints, x);
+            this.values.currentSnapPoint = getCurrentSnapPointSlide(this.snapPoints, x);
         }
 
         if (sticky === 'bottom') {
-            this.state.currentSnapPoint = getBottomSnapSlideByScrollPosition(
-                this.state.snapPoints,
-                x,
-            );
+            this.values.currentSnapPoint = getBottomSnapSlideByScrollPosition(this.snapPoints, x);
         }
 
-        this.state.scrollX = this.getSnapPointScrollPosition();
+        this.values.scrollX = this.getSnapPointScrollPosition();
 
-        if (this.state.scrollX < this.state.startEdge) {
-            this.state.scrollX = this.state.startEdge;
+        if (this.values.scrollX < this.values.startEdge) {
+            this.values.scrollX = this.values.startEdge;
         }
 
-        if (this.state.scrollX > this.state.endEdge) {
-            this.state.scrollX = this.state.endEdge;
+        if (this.values.scrollX > this.values.endEdge) {
+            this.values.scrollX = this.values.endEdge;
         }
 
         this.animationController.start({
-            x: this.state.scrollX,
+            x: this.values.scrollX,
             onResolve: this.onAnimationEnd,
             config: SCROLL_END_ANIMATION_CONFIG,
         });
     };
 
-    public addHandler = (...args: Parameters<typeof this.handlersController.addHandler>) => {
-        this.handlersController.addHandler(args[0], args[1]);
+    public addHandler = (
+        ...args: Parameters<typeof this.handlersController.addHandler>
+    ): HandlersController<typeof ScrollHandlerTypes, IScrollEvent> => {
+        return this.handlersController.addHandler(args[0], args[1]);
     };
 
     public destroy = () => {

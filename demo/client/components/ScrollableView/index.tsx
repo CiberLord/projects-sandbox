@@ -1,11 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
-import { scrollableContainerFactory } from '../Slider/libs/scrollableContainerFactory';
-
 import styles from './styles.module.css';
-import { getSnapPointsAccordingScrollWidth } from '../Slider/libs';
-import { ScrollListeners } from '../Slider/libs/scrollableContainerFactory/types';
-import { SnapScrollableViewInitializer } from '../Slider/libs/SnapScrollableViewInitializer';
+import { calcSnapPointsBlockEdges } from '../SliderV2/utils/helpers/calcSnapPointsBlockEdges';
+import { StickyScrollExecutor } from '../SliderV2/utils/stickyScrollExecutor';
 
 export const ScrollableView: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -14,23 +11,27 @@ export const ScrollableView: React.FC = () => {
 
     useEffect(() => {
         const container = containerRef.current as HTMLDivElement;
-        const slidesTrack = scrollTrackRef.current as HTMLDivElement;
+        const list = scrollTrackRef.current as HTMLDivElement;
         const slides = slidesRef.current as HTMLDivElement[];
 
-        const snapPoints = getSnapPointsAccordingScrollWidth({
+        const snapPoints = calcSnapPointsBlockEdges({
             container,
-            slidesTrack,
+            list,
             slides,
         });
 
-        const stickyScrollableView = new SnapScrollableViewInitializer({
+        const stickyScrollableView = new StickyScrollExecutor({
             containerNode: container,
-            scrollableNode: slidesTrack,
+            scrollableNode: list,
             snapPoints,
         });
 
-        stickyScrollableView.addHandler(ScrollListeners.SCROLL_END, () => {
-            console.log('scroll end');
+        stickyScrollableView.addListener('SCROLL_END', () => {
+            console.log('SCROLL_END');
+        });
+
+        stickyScrollableView.addListener('SWIPE', () => {
+            console.log('SWIPE');
         });
 
         return () => {

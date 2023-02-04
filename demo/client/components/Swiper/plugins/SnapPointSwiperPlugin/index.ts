@@ -1,5 +1,3 @@
-//ssh -i .ssh/id_yandex_cloud yuldash@62.84.121.167
-
 import { Controller } from '@react-spring/web';
 
 import {

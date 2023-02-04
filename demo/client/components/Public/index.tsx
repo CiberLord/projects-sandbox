@@ -1,7 +1,8 @@
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren } from 'react';
+import classnames from 'classnames/bind';
 
-import { IArrowsProps } from '../Slider/types';
-import { SnapSliderModule, Slider, SliderSlide } from '../Slider';
+import { IArrowProps } from '../SliderV2/types';
+import { StickyScrollSliderModule, Slider, SliderSlide } from '../SliderV2';
 import styles from './styles.module.css';
 
 import img1 from './assets/img1.jpeg';
@@ -10,28 +11,30 @@ import img3 from './assets/img3.jpeg';
 import img4 from './assets/img4.jpeg';
 import { ScrollableView } from '../ScrollableView';
 
-export const Arrows: React.FC<IArrowsProps> = ({
-    showPrevButton,
-    showNextButton,
-    toNext,
-    toPrev,
+const cx = classnames.bind(styles);
+
+const SLIDES_LIST = [img1, img2, img3, img4];
+
+export const Arrows: React.FC<IArrowProps> = ({
+    activePrevButton,
+    activeNextButton,
+    setNext,
+    setPrev,
 }) => {
     return (
         <div className={styles.arrowContainer}>
-            {showPrevButton && (
-                <div
-                    onClick={toPrev}
-                    className={styles.arrowPrev}>
-                    prev
-                </div>
-            )}
-            {showNextButton && (
-                <div
-                    onClick={toNext}
-                    className={styles.arrowNext}>
-                    next
-                </div>
-            )}
+            <button
+                onClick={setPrev}
+                disabled={!activePrevButton}
+                className={cx(styles.arrow, { activePrevButton })}>
+                prev
+            </button>
+            <button
+                onClick={setNext}
+                disabled={!activeNextButton}
+                className={cx(styles.arrow, { activeNextButton })}>
+                next
+            </button>
         </div>
     );
 };
@@ -39,144 +42,30 @@ export const Arrows: React.FC<IArrowsProps> = ({
 export const Public: React.FC<PropsWithChildren> = () => {
     return (
         <div className={styles.container}>
-            <div className={styles.otherContent}>
-                <div className={styles.block}>
-                    <Slider
-                        module={SnapSliderModule}
-                        arrows={Arrows}
-                        className={styles.slidesWrapper}
-                        wrapperClassName={styles.wrapper}>
+            <Slider
+                module={StickyScrollSliderModule}
+                arrows={Arrows}
+                className={styles.slidesWrapper}>
+                {SLIDES_LIST.map((image) => {
+                    return (
                         <SliderSlide
-                            key={'1'}
+                            key={image}
                             className={styles.slide}>
                             <img
                                 className={styles.image}
-                                src={img1}
-                                alt={''}
+                                src={image}
                             />
-                            <button
-                                onClick={() => {
-                                    console.log('hello world');
-                                }}
-                                className={styles.button}>
-                                click
-                            </button>
+                            <button className={styles.button}>click</button>
                         </SliderSlide>
-                        <SliderSlide
-                            key={'2'}
-                            className={styles.slide}>
-                            <img
-                                className={styles.image}
-                                src={img2}
-                                alt={''}
-                            />
-                            <button
-                                onClick={() => {
-                                    console.log('hello world');
-                                }}
-                                className={styles.button}>
-                                click
-                            </button>
-                        </SliderSlide>
-                        <SliderSlide
-                            key={'3'}
-                            className={styles.slide}>
-                            <img
-                                className={styles.image}
-                                src={img3}
-                                alt={''}
-                            />
-                            <button
-                                onClick={() => {
-                                    console.log('hello world');
-                                }}
-                                className={styles.button}>
-                                click
-                            </button>
-                        </SliderSlide>
-                        <SliderSlide
-                            key={'4'}
-                            className={styles.slide}>
-                            <img
-                                className={styles.image}
-                                src={img4}
-                                alt={''}
-                            />
-                            <button
-                                onClick={() => {
-                                    console.log('hello world');
-                                }}
-                                className={styles.button}>
-                                click
-                            </button>
-                        </SliderSlide>
-                    </Slider>
-                </div>
-                {/*<div className={styles.block}>*/}
-                {/*    <Slider*/}
-                {/*        module={SnapSliderModule}*/}
-                {/*        className={styles.slidesWrapper}>*/}
-                {/*        <SliderSlide*/}
-                {/*            key={'1'}*/}
-                {/*            className={styles.slide}>*/}
-                {/*            <h1>title</h1>*/}
-                {/*            <button*/}
-                {/*                onClick={() => {*/}
-                {/*                    console.log('hello world');*/}
-                {/*                }}*/}
-                {/*                className={styles.button}>*/}
-                {/*                click*/}
-                {/*            </button>*/}
-                {/*        </SliderSlide>*/}
-                {/*        <SliderSlide*/}
-                {/*            key={'2'}*/}
-                {/*            className={styles.slide}>*/}
-                {/*            <h1>title</h1>*/}
-                {/*            <button*/}
-                {/*                onClick={() => {*/}
-                {/*                    console.log('hello world');*/}
-                {/*                }}*/}
-                {/*                className={styles.button}>*/}
-                {/*                click*/}
-                {/*            </button>*/}
-                {/*        </SliderSlide>*/}
-                {/*        <SliderSlide*/}
-                {/*            key={'3'}*/}
-                {/*            className={styles.slide}>*/}
-                {/*            <h1>title</h1>*/}
-                {/*            <button*/}
-                {/*                onClick={() => {*/}
-                {/*                    console.log('hello world');*/}
-                {/*                }}*/}
-                {/*                className={styles.button}>*/}
-                {/*                click*/}
-                {/*            </button>*/}
-                {/*        </SliderSlide>*/}
-                {/*        <SliderSlide*/}
-                {/*            key={'4'}*/}
-                {/*            className={styles.slide}>*/}
-                {/*            <h1>title</h1>*/}
-                {/*            <button*/}
-                {/*                onClick={() => {*/}
-                {/*                    console.log('hello world');*/}
-                {/*                }}*/}
-                {/*                className={styles.button}>*/}
-                {/*                click*/}
-                {/*            </button>*/}
-                {/*        </SliderSlide>*/}
-                {/*    </Slider>*/}
-                {/*</div>*/}
-                <div className={styles.block}>
-                    <ScrollableView />
-                </div>
-                <div className={styles.block}></div>
-                <div className={styles.block}></div>
-                <div className={styles.block}></div>
-                <div className={styles.block}></div>
-                <div className={styles.block}></div>
-                <div className={styles.block}></div>
-                <div className={styles.block}></div>
-                <div className={styles.block}></div>
+                    );
+                })}
+            </Slider>
+            <div
+                style={{
+                    height: '400px',
+                    background: 'yellow',
+                }}>
+                next block
             </div>
         </div>
     );
