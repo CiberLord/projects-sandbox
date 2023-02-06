@@ -2,18 +2,17 @@ import React, { PropsWithChildren } from 'react';
 import classnames from 'classnames/bind';
 
 import { IArrowProps } from '../SliderV2/types';
-import { StickyScrollSliderModule, Slider, SliderSlide } from '../SliderV2';
+import { FreeScrollSliderModule, StickyScrollSliderModule, Slider, SliderSlide } from '../SliderV2';
 import styles from './styles.module.css';
 
 import img1 from './assets/img1.jpeg';
 import img2 from './assets/img2.jpeg';
 import img3 from './assets/img3.jpeg';
 import img4 from './assets/img4.jpeg';
-import { ScrollableView } from '../ScrollableView';
 
 const cx = classnames.bind(styles);
 
-const SLIDES_LIST = [img1, img2, img3, img4];
+const SLIDES_LIST = [img1, img2, img3, img4, img1, img2];
 
 export const Arrows: React.FC<IArrowProps> = ({
     activePrevButton,
@@ -45,6 +44,7 @@ export const Public: React.FC<PropsWithChildren> = () => {
             <Slider
                 module={StickyScrollSliderModule}
                 arrows={Arrows}
+                centered={false}
                 className={styles.slidesWrapper}>
                 {SLIDES_LIST.map((image) => {
                     return (

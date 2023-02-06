@@ -9,7 +9,7 @@ import { useSlider } from '../hooks/useSlider';
 const SliderConstructor: React.FC<PropsWithChildren<PropsWithChildren<ISliderConstructorProps>>> = (
     props,
 ) => {
-    const { className, children, pagination: Pagination, arrows: Arrows } = props;
+    const { className, children, pagination: Pagination, arrows: Arrows, ...otherProps } = props;
     const {
         slider,
         activeSlide,
@@ -19,11 +19,7 @@ const SliderConstructor: React.FC<PropsWithChildren<PropsWithChildren<ISliderCon
         setContainerElement,
         setWrapperElement,
         setListElement,
-    } = useSlider({
-        module: props.module,
-        activeSlide: props.activeSlide,
-        onChange: props.onChange,
-    });
+    } = useSlider(otherProps);
 
     const classNames = slider.getClassNames();
 
@@ -44,14 +40,6 @@ const SliderConstructor: React.FC<PropsWithChildren<PropsWithChildren<ISliderCon
                         {children}
                     </SliderContextProvider>
                 </div>
-            </div>
-            <div
-                style={{
-                    display: 'block',
-                    height: '100px',
-                    background: 'green',
-                }}>
-                hello world
             </div>
             {Pagination && (
                 <Pagination

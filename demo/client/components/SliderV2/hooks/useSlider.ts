@@ -4,7 +4,7 @@ import { useActiveSlide } from './useActiveSlide';
 import { useSliderElements } from './useSliderElements';
 
 export const useSlider = (options: ISliderConstructorOptions) => {
-    const { module: SliderModule } = options;
+    const { module: SliderModule, ...moduleOptions } = options;
 
     const {
         slidesCount,
@@ -16,10 +16,7 @@ export const useSlider = (options: ISliderConstructorOptions) => {
         removeSlideElement,
     } = useSliderElements();
 
-    const slider = useMemo(
-        () => new SliderModule({ activeSlide: options.activeSlide, onChange: options.onChange }),
-        [],
-    );
+    const slider = useMemo(() => new SliderModule(moduleOptions), []);
 
     const { activeSlide } = useActiveSlide({ slider });
 

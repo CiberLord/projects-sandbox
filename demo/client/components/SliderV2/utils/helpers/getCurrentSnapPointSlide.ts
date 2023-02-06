@@ -4,6 +4,8 @@ import { getBottomSnapSlideByScrollPosition } from './getBottomSnapSlideByScroll
 export const getCurrentSnapPointSlide = (snapPoints: number[], scrollPosition: number) => {
     const bottomSlide = getBottomSnapSlideByScrollPosition(snapPoints, scrollPosition);
 
+    console.log('bottomSlide = ', bottomSlide);
+
     const topSlide = Math.min(snapPoints.length - 1, bottomSlide + 1);
 
     const triggerPosition = (snapPoints[bottomSlide] + snapPoints[topSlide]) / 2;

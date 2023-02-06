@@ -36,6 +36,7 @@ export type SliderListener = (event: ISliderEvent) => void;
 export interface ISliderOptionsBase {
     activeSlide?: Slide;
     onChange?: SliderListener;
+    centered?: boolean;
 }
 
 export interface ISetSlideOptions {

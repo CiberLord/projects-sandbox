@@ -1,9 +1,3 @@
-export enum Sticky {
-    LOW = 'LOW',
-    NEAREST = 'NEAREST',
-    HIGH = 'HIGH',
-}
-
 export enum ScrollEvents {
     SCROLL = 'SCROLL',
     SCROLL_END = 'SCROLL_END',

@@ -8,8 +8,8 @@ import {
 } from '../../types';
 import { calcSnapPointsBlockEdges } from '../../utils/helpers/calcSnapPointsBlockEdges';
 import { StickyScrollExecutor } from '../../utils/stickyScrollExecutor';
-import { Sticky } from '../../utils/stickyScrollExecutor/types';
 import styles from './styles.module.css';
+import { calcSnapPointsSafeEdges } from '../../utils/helpers/calcSnapPointsSafeEdges';
 
 class StickyScrollSliderModule extends SliderModule<ISliderOptionsBase> {
     private snapPoints: number[];
@@ -22,23 +22,32 @@ class StickyScrollSliderModule extends SliderModule<ISliderOptionsBase> {
     onMount = (elements: Required<ISliderElements>) => {
         this.elements = elements;
 
-        this.snapPoints = calcSnapPointsBlockEdges({
-            container: this.elements.wrapper,
-            list: this.elements.list,
-            slides: this.elements.slides,
-        });
+        if (this.options.centered) {
+            this.snapPoints = calcSnapPointsSafeEdges({
+                container: this.elements.wrapper,
+                slides: this.elements.slides,
+                centered: true,
+            });
+        } else {
+            this.snapPoints = calcSnapPointsBlockEdges({
+                container: this.elements.wrapper,
+                list: this.elements.list,
+                slides: this.elements.slides,
+            });
+        }
 
         this.stickyScrollExecutor = new StickyScrollExecutor({
             containerNode: this.elements.wrapper,
             scrollableNode: this.elements.list,
             snapPoints: this.snapPoints,
+            safeEdges: true,
         });
 
         this.initChangeSlidesEventDispatcher();
         this.initLeaveEdgesEventDispatchers();
         this.initEnterEdgesEventDispatchers();
 
-        this.stickyScrollExecutor.scrollTo(this.snapPoints[this.activeSlide], Sticky.NEAREST);
+        this.stickyScrollExecutor.scrollTo(this.snapPoints[this.activeSlide]);
     };
 
     onDestroy = () => {
@@ -46,20 +55,20 @@ class StickyScrollSliderModule extends SliderModule<ISliderOptionsBase> {
     };
 
     setSlide = ({ activeSlide }: ISetSlideOptions) => {
-        this.stickyScrollExecutor.scrollTo(this.snapPoints[activeSlide]);
+        const updatedPosition = this.getSnapPointPositionByIndex(activeSlide);
+        this.stickyScrollExecutor.scrollTo(updatedPosition);
     };
 
     toNext = () => {
-        const containerWidth = this.elements.container.getBoundingClientRect().width;
-        const nextScrollPosition = this.snapPoints[this.activeSlide] + containerWidth;
-        this.stickyScrollExecutor.scrollTo(nextScrollPosition, Sticky.LOW);
+        const nextPosition = this.getSnapPointPositionByIndex(this.activeSlide + 1);
+
+        this.stickyScrollExecutor.scrollTo(nextPosition);
     };
 
     toPrev = () => {
-        const containerWidth = this.elements.container.getBoundingClientRect().width;
-        const nextScrollPosition = this.snapPoints[this.activeSlide] - containerWidth;
+        const prevPosition = this.getSnapPointPositionByIndex(this.activeSlide - 1);
 
-        this.stickyScrollExecutor.scrollTo(nextScrollPosition, Sticky.NEAREST);
+        this.stickyScrollExecutor.scrollTo(prevPosition);
     };
 
     getClassNames = (): ISliderClassNames => {
@@ -110,6 +119,18 @@ class StickyScrollSliderModule extends SliderModule<ISliderOptionsBase> {
                 return this.dispatchEvents(EventTypes.ENTER_LAST, this.getEvent(event));
             }
         });
+    };
+
+    private getSnapPointPositionByIndex = (index: number) => {
+        if (index < 0) {
+            return this.snapPoints[0];
+        }
+
+        if (index >= this.snapPoints.length) {
+            return this.snapPoints[this.snapPoints.length - 1];
+        }
+
+        return this.snapPoints[index];
     };
 }
 

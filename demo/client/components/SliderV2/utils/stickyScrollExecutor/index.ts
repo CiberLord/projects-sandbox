@@ -7,14 +7,8 @@ import { createDragEvents } from '../createDragEvents';
 import { getInToRange } from '../helpers/getInToRange';
 import { getMaxScrollWidth } from '../helpers/getMaxScrollWidth';
 import { getCurrentSnapPointSlide } from '../helpers/getCurrentSnapPointSlide';
-import { getBottomSnapSlideByScrollPosition } from '../helpers/getBottomSnapSlideByScrollPosition';
-import {
-    EDGE_TENSION,
-    MAX_EDGE_OFFSET,
-    SCROLL_ANIMATION_CONFIG,
-    SCROLL_END_ANIMATION_CONFIG,
-} from './consts';
-import { IScrollEvent, IStickyScrollExecutorOptions, ScrollEvents, Sticky } from './types';
+import { EDGE_TENSION, SCROLL_ANIMATION_CONFIG, SCROLL_END_ANIMATION_CONFIG } from './consts';
+import { IScrollEvent, IStickyScrollExecutorOptions, ScrollEvents } from './types';
 
 class StickyScrollExecutor {
     static eventTypes = ScrollEvents;
@@ -83,7 +77,7 @@ class StickyScrollExecutor {
             },
             onMoveEnd: ({ delta }) => {
                 const updatedPosition = this.getUpdatedPosition(delta.x);
-                this.scrollTo(updatedPosition, Sticky.NEAREST);
+                this.scrollTo(updatedPosition);
             },
             onSwipe: ({ direction }) => {
                 this.currentSnapPoint = getInToRange(
@@ -99,31 +93,11 @@ class StickyScrollExecutor {
         });
     };
 
-    public scrollTo = (scrollPosition: number, sticky?: Sticky) => {
-        if (sticky === Sticky.NEAREST) {
-            this.currentSnapPoint = getCurrentSnapPointSlide(this.snapPoints, scrollPosition);
-        }
-
-        if (sticky === Sticky.LOW) {
-            this.currentSnapPoint = getBottomSnapSlideByScrollPosition(
-                this.snapPoints,
-                scrollPosition,
-            );
-        }
-
-        if (sticky === Sticky.HIGH) {
-            const lowSnapPoint = getBottomSnapSlideByScrollPosition(
-                this.snapPoints,
-                scrollPosition,
-            );
-
-            this.currentSnapPoint = lowSnapPoint + 1;
-        }
-
-        const updatedPosition = this.getCurrentSnapPointPosition();
+    public scrollTo = (scrollPosition: number) => {
+        this.currentSnapPoint = getCurrentSnapPointSlide(this.snapPoints, scrollPosition);
 
         this.animation.start({
-            scrollValue: updatedPosition,
+            scrollValue: this.snapPoints[this.currentSnapPoint],
             onRest: () => {
                 this.scrollValue = this.getCurrentSnapPointPosition();
                 this.dispatchScrollEnd();
@@ -164,13 +138,13 @@ class StickyScrollExecutor {
         let updatedPosition = this.getCurrentSnapPointPosition() - delta;
 
         if (updatedPosition < this.startEdge) {
-            updatedPosition = Math.max(-MAX_EDGE_OFFSET, EDGE_TENSION * updatedPosition);
+            updatedPosition = this.startEdge + EDGE_TENSION * updatedPosition;
         }
 
         if (updatedPosition > this.endEdge) {
             const offset = updatedPosition - this.endEdge;
 
-            updatedPosition = this.endEdge + Math.min(MAX_EDGE_OFFSET, EDGE_TENSION * offset);
+            updatedPosition = this.endEdge + EDGE_TENSION * offset;
         }
 
         return updatedPosition;

@@ -14,11 +14,14 @@ import { IScrollEvent } from '../utils/stickyScrollExecutor/types';
 class SliderModule<Options extends ISliderOptionsBase> implements ISliderModule {
     activeSlide: number;
 
+    options: Options;
+
     elements: Required<ISliderElements>;
 
     eventsObserver: EventsObserver<typeof EventTypes, ISliderEvent>;
 
     constructor(options: Options) {
+        this.options = options;
         this.activeSlide = options.activeSlide || 0;
 
         this.eventsObserver = new EventsObserver<typeof EventTypes, ISliderEvent>({
