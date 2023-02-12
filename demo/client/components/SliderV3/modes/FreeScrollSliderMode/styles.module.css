@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    overflow-x: scroll;
+    box-sizing: border-box;
+    width: 100%;
+    scrollbar-width: none;
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollable {
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+.slide {
+    box-sizing: border-box;
+    flex-shrink: 0;
+}

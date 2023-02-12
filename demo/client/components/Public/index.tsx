@@ -1,8 +1,8 @@
 import React, { PropsWithChildren } from 'react';
 import classnames from 'classnames/bind';
 
-import { IArrowProps } from '../SliderV2/types';
-import { FreeScrollSliderModule, StickyScrollSliderModule, Slider, SliderSlide } from '../SliderV2';
+import { StickyMode, FreeScrollMode, Slider, SliderSlide } from '../SliderV3';
+import { IArrowProps, IPaginationProps } from '../SliderV3/types';
 import styles from './styles.module.css';
 
 import img1 from './assets/img1.jpeg';
@@ -10,9 +10,59 @@ import img2 from './assets/img2.jpeg';
 import img3 from './assets/img3.jpeg';
 import img4 from './assets/img4.jpeg';
 
+import img5 from './assets/img5.jpeg';
+import img6 from './assets/img6.jpeg';
+import img7 from './assets/img7.jpeg';
+import img8 from './assets/img8.jpeg';
+import img9 from './assets/img9.jpeg';
+
+import img10 from './assets/img10.jpeg';
+import img11 from './assets/img11.jpeg';
+import img12 from './assets/img12.jpeg';
+import img13 from './assets/img13.jpeg';
+import img14 from './assets/img14.jpeg';
+
 const cx = classnames.bind(styles);
 
-const SLIDES_LIST = [img1, img2, img3, img4, img1, img2];
+const SLIDES_LIST = [
+    img5,
+    img13,
+    img1,
+    img6,
+    img2,
+    img10,
+    img7,
+    img11,
+    img3,
+    img14,
+    img8,
+    img4,
+    img9,
+    img12,
+];
+
+export const Pagination: React.FC<IPaginationProps> = ({
+    slider,
+    slidesCount,
+    activeSlide,
+    className,
+}) => {
+    const slides = slider.getSlides() || [];
+
+    return (
+        <div className={styles.paginationContainer}>
+            {slides.map((slide, index) => {
+                return (
+                    <div
+                        key={slide}
+                        className={cx(styles.paginationItem, { isActive: activeSlide === index })}>
+                        {index}
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
 
 export const Arrows: React.FC<IArrowProps> = ({
     activePrevButton,
@@ -42,14 +92,16 @@ export const Public: React.FC<PropsWithChildren> = () => {
     return (
         <div className={styles.container}>
             <Slider
-                module={StickyScrollSliderModule}
+                mode={FreeScrollMode}
                 arrows={Arrows}
-                centered={false}
-                className={styles.slidesWrapper}>
-                {SLIDES_LIST.map((image) => {
+                pagination={Pagination}
+                isUpdateOnResize
+                className={styles.slidesWrapper}
+                sliderScrollableClassName={styles.slides}>
+                {SLIDES_LIST.map((image, index) => {
                     return (
                         <SliderSlide
-                            key={image}
+                            key={index}
                             className={styles.slide}>
                             <img
                                 className={styles.image}
@@ -63,7 +115,7 @@ export const Public: React.FC<PropsWithChildren> = () => {
             <div
                 style={{
                     height: '400px',
-                    background: 'yellow',
+                    background: 'bisque',
                 }}>
                 next block
             </div>
