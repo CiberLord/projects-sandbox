@@ -1,8 +1,8 @@
 import React, { PropsWithChildren } from 'react';
 import classnames from 'classnames/bind';
 
-import { StickyMode, FreeScrollMode, Slider, SliderSlide } from '../SliderV3';
-import { IArrowProps, IPaginationProps } from '../SliderV3/types';
+import { Modes, Slider, SliderSlide } from '../SliderV4';
+import { IArrowProps, IPaginationProps } from '../SliderV4/types';
 import styles from './styles.module.css';
 
 import img1 from './assets/img1.jpeg';
@@ -41,21 +41,18 @@ const SLIDES_LIST = [
     img12,
 ];
 
-export const Pagination: React.FC<IPaginationProps> = ({
-    slider,
-    slidesCount,
-    activeSlide,
-    className,
-}) => {
-    const slides = slider.getSlides() || [];
+export const Pagination: React.FC<IPaginationProps> = ({ slider, className }) => {
+    const slides = Array(slider.slidesCount).fill(0);
 
     return (
         <div className={styles.paginationContainer}>
             {slides.map((slide, index) => {
                 return (
                     <div
-                        key={slide}
-                        className={cx(styles.paginationItem, { isActive: activeSlide === index })}>
+                        key={index}
+                        className={cx(styles.paginationItem, {
+                            isActive: slider.activeSlide === index,
+                        })}>
                         {index}
                     </div>
                 );
@@ -67,19 +64,19 @@ export const Pagination: React.FC<IPaginationProps> = ({
 export const Arrows: React.FC<IArrowProps> = ({
     activePrevButton,
     activeNextButton,
-    setNext,
-    setPrev,
+    toNext,
+    toPrev,
 }) => {
     return (
         <div className={styles.arrowContainer}>
             <button
-                onClick={setPrev}
+                onClick={toPrev}
                 disabled={!activePrevButton}
                 className={cx(styles.arrow, { activePrevButton })}>
                 prev
             </button>
             <button
-                onClick={setNext}
+                onClick={toNext}
                 disabled={!activeNextButton}
                 className={cx(styles.arrow, { activeNextButton })}>
                 next
@@ -92,10 +89,10 @@ export const Public: React.FC<PropsWithChildren> = () => {
     return (
         <div className={styles.container}>
             <Slider
-                mode={FreeScrollMode}
+                mode={Modes.FREE}
                 arrows={Arrows}
                 pagination={Pagination}
-                isUpdateOnResize
+                // isUpdateOnResize
                 className={styles.slidesWrapper}
                 sliderScrollableClassName={styles.slides}>
                 {SLIDES_LIST.map((image, index) => {

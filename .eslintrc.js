@@ -34,7 +34,10 @@ module.exports = {
                 ],
                 eqeqeq: 'error',
                 quotes: ['error', 'single'],
-                'no-unused-vars': ['error', { vars: 'all', args: 'none', ignoreRestSiblings: true }],
+                'no-unused-vars': [
+                    'error',
+                    { vars: 'all', args: 'none', ignoreRestSiblings: true },
+                ],
             },
         },
         {
@@ -61,18 +64,12 @@ module.exports = {
                 'prefer-const': 'error',
                 'no-console': 'error',
                 'arrow-spacing': ['error', { before: true, after: true }],
-                'no-use-before-define': [
-                    'error',
-                    {
-                        functions: false,
-                        classes: true,
-                        variables: true,
-                        allowNamedExports: false,
-                    },
-                ],
                 eqeqeq: 'error',
                 quotes: ['error', 'single'],
-                '@typescript-eslint/no-unused-vars': ['error', { vars: 'all', args: 'none', ignoreRestSiblings: true }],
+                '@typescript-eslint/no-unused-vars': [
+                    'error',
+                    { vars: 'all', args: 'none', ignoreRestSiblings: true },
+                ],
             },
         },
     ],
